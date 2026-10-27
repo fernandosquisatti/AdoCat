@@ -1,0 +1,68 @@
+ADOCAT — PAINEL ADMINISTRATIVO / JAVA SPRING BOOT
+================================================
+Este pacote adiciona o painel de administração ao sistema já existente.
+Não é um sistema PHP e NÃO requer outro serviço no EasyPanel.
+
+ARQUIVOS DO ZIP (CAMINHOS RELATIVOS À RAIZ DO GITHUB)
+  pom.xml (substituir: acrescenta o starter de segurança)
+  src/main/java/com/adocat/config/SecurityConfig.java
+  src/main/java/com/adocat/controller/CsrfController.java
+  src/main/java/com/adocat/controller/GatoAdminController.java
+  src/main/java/com/adocat/controller/AdminUsuariosController.java
+  src/main/java/com/adocat/controller/GatoController.java (substituir)
+  src/main/java/com/adocat/controller/UsuarioController.java (substituir)
+  src/main/resources/static/admin.html
+  src/main/resources/static/admin-login.html
+
+ATENÇÃO: mantenha o index.html público que já está no seu projeto.
+Também NÃO substitua seu application.properties por um arquivo antigo!
+Seu backend já funciona com variáveis SPRING_DATASOURCE_* no EasyPanel.
+
+PASSO 1 — NO EASYPANEL > ADOCAT > BACKEND > AMBIENTE
+Adicione as variáveis (escolha você as credenciais, com uma senha FORTE):
+    APP_ADMIN_USERNAME=admin
+    APP_ADMIN_PASSWORD=<uma senha forte, única, com pelo menos 20 caracteres>
+Não coloque essas credenciais no GitHub. Nunca compartilhe a senha.
+As variáveis SPRING_DATASOURCE_* e as portas atuais DEVEM continuar iguais.
+
+PASSO 2 — NO GITHUB (branch master)
+Copie os arquivos do ZIP para os caminhos exatos, mantendo as pastas.
+O pom.xml deve conter uma dependência nova de spring-boot-starter-security.
+
+PASSO 3 — EASYPANEL
+Clique em Implantar no mesmo backend já existente.
+Se aparecer erro de build, não apague o banco nem o serviço; restaure pom.xml
+anterior e compartilhe a mensagem do erro, sem segredos.
+
+PASSO 4 — ABRIR O PAINEL
+    https://adocat-backend.2ha91c.easypanel.host/admin.html
+Será aberto o login administrativo; entre com APP_ADMIN_USERNAME e APP_ADMIN_PASSWORD.
+Sem as variáveis de login, o backend inicia, mas nenhuma conta pode entrar.
+A página pública e GET /api/gatos continuam acessíveis sem login.
+
+O QUE FUNCIONA
+  - Visão geral e indicadores derivados dos registros reais.
+  - Gatos: listar, filtrar, cadastrar, editar e excluir no banco.
+  - Doações: listar e registrar doações financeiras no banco.
+  - Usuários: consultar somente id/nome/email/tipo, sem enviar senhas.
+  - Login de administrador via sessão e senha BCrypt; proteção CSRF.
+
+O QUE AINDA NÃO FUNCIONA (requer novos endpoints e tabelas Java)
+  - Adoções e seus formulários/situação, resgates e histórico veterinário.
+  - Upload de fotos, notificações, relatórios completos, múltiplas contas admin.
+
+SEGURANÇA
+  - Rotas públicas de leitura dos gatos continuam públicas, mas POST/PUT/DELETE
+    exigem a sessão ADMIN; GET /usuarios e /doacoes agora exigem login.
+  - A conta ADMIN é separada da tabela tb_usuarios e existe só em memória.
+  - Substituímos o UsuarioController para impedir expor senhas via JSON
+    e armazenar novas senhas com hash BCrypt.
+  - Troque qualquer senha de MySQL que tenha sido exposta em arquivo público.
+  - O repositório de exemplo antigo tinha uma senha em application.properties:
+    remova do repositório e do histórico e rotacione a credencial correspondente.
+  - Faça backup do banco antes de aplicar alterações em produção.
+
+NOTA
+Este pacote foi estruturado com base nos arquivos Java do ZIP AdoCat-master
+compartilhado anteriormente; se houve alterações recentes nos controllers,
+compare antes de substituir os dois controllers e o pom.xml.
