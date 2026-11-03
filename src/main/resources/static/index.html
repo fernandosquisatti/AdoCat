@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AdoCat | Adoção responsável de gatos</title>
 <meta name="description" content="AdoCat: encontre gatos disponíveis para adoção responsável. Consulte os animais cadastrados na plataforma." />
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+>
+
+
+
 <style>
 :root{
   --bg:#f4f4f4;
@@ -61,7 +71,61 @@ p{margin-top:0}
 .help-card .btn{margin-top:auto;align-self:flex-start}
 .lost-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}
 .lost-card{min-height:310px;display:flex;flex-direction:column;justify-content:space-between}
-.map-card{min-height:310px;display:grid;place-items:center;text-align:center}
+/* .map-card{min-height:310px;display:grid;place-items:center;text-align:center} */
+.map-card {
+  display: block;
+  min-height: 0;
+  padding: 24px;
+  text-align: left;
+}
+
+.map-intro {
+  margin-bottom: 16px;
+}
+
+.map-intro h3 {
+  margin: 10px 0 8px;
+}
+
+#occurrenceMap {
+  width: 100%;
+  height: 360px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #eef5ef;
+}
+
+/* Estilo das dicas e das fotos dos gatos no mapa */
+.cat-tooltip {
+  white-space: normal;
+  max-width: 260px;
+}
+
+.cat-tooltip img,
+.leaflet-popup-content img {
+  display: block;
+  width: 100%;
+  height: 120px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.map-note {
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 620px) {
+  .map-card {
+    padding: 16px;
+  }
+
+  #occurrenceMap {
+    height: 300px;
+  }
+}
+
 .cta-card{padding:34px;display:flex;justify-content:space-between;align-items:center;gap:20px}
 footer{padding:20px 0 32px}
 .footer-card{display:flex;justify-content:space-between;align-items:center;gap:20px}
@@ -106,8 +170,704 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 #copyFeedback{font-size:.85rem;min-height:22px}
 @media(max-width:950px){header .nav{flex-wrap:wrap;padding-block:12px}header nav{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem;order:3;width:100%}}
 @media(max-width:620px){.hero-card{padding:24px}.field{min-width:0}}
+/* Ajustes visuais iniciais da página AdoCat */
+:root {
+  --bg: #f7f8f5;
+  --card: #ffffff;
+  --line: #d9e2da;
+  --line2: #e8ece8;
+  --text: #28352d;
+  --muted: #68756c;
+}
+
+.card,
+.btn,
+.logo-box,
+.field,
+.chip,
+.step-num {
+  border-style: solid;
+}
+
+.card {
+  border-width: 1px;
+  box-shadow: 0 6px 20px rgba(35, 60, 43, 0.06);
+}
+
+.hero-card {
+  background: linear-gradient(135deg, #eef6ee, #ffffff);
+}
+
+.btn {
+  border-color: #b7cbb9;
+  color: #315b3d;
+  cursor: pointer;
+}
+
+.btn:not(:disabled):hover {
+  background: #e7f1e8;
+  border-color: #729579;
+}
+
+.eyebrow {
+  color: #42674a;
+  border-color: #d5e2d6;
+}
+
+/* Banner principal */
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 32px;
+  align-items: center;
+  padding: clamp(24px, 5vw, 56px);
+  overflow: hidden;
+  background: linear-gradient(135deg, #eef6ee, #ffffff);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-description {
+  max-width: 560px;
+  font-size: 1.08rem;
+}
+
+.hero-image {
+  min-height: 330px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #e5ece5;
+}
+
+.hero-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 330px;
+  object-fit: cover;
+}
+
+.hero-card .actions a:first-child {
+  background: #315b47;
+  border-color: #315b47;
+  color: #fff;
+}
+
+.hero-card .actions a:first-child:hover {
+  background: #254735;
+  border-color: #254735;
+}
+
+@media (max-width: 720px) {
+  .hero-card {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-image,
+  .hero-image img {
+    min-height: 230px;
+  }
+}
+
+/* Cartões dos gatos */
+.animal-card {
+  padding: 22px;
+  border: 1px solid #e1e9e1;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(35, 60, 43, 0.07);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.animal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(35, 60, 43, 0.12);
+}
+
+.animal-top {
+  align-items: flex-start;
+}
+
+.animal-top h3 {
+  color: #293c30;
+}
+
+.animal-card .status-tag {
+  font-weight: 700;
+}
+
+.animal-card .status-tag:not(.other):not(.adopted) {
+  background: #e7f3e8;
+  color: #315b3d;
+}
+
+.animal-card .status-tag.other {
+  background: #f1f2ed;
+  color: #68756c;
+}
+
+.animal-card .status-tag.adopted {
+  background: #f7efdf;
+  color: #765c2e;
+}
+
+.animal-card .chip {
+  background: #f7f9f6;
+  border-color: #e1e9e1;
+  color: #5e6d61;
+}
+
+.animal-card .card-actions .btn:first-child {
+  background: #fff;
+  color: #315b47;
+}
+
+.animal-card .card-actions .btn:last-child {
+  background: #315b47;
+  border-color: #315b47;
+  color: #fff;
+}
+
+.animal-card .card-actions .btn:last-child:hover {
+  background: #254735;
+  border-color: #254735;
+}
+
+/* Campos de busca e filtros */
+.field {
+  border: 1px solid #e1e9e1;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(35, 60, 43, 0.04);
+}
+
+.field label {
+  color: #42674a;
+}
+
+.field input,
+.field select {
+  background: #f7f9f6;
+  color: #34443a;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid #71967e;
+  outline-offset: 2px;
+}
+
+/* Respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  .animal-card {
+    transition: none;
+  }
+
+  .animal-card:hover {
+    transform: none;
+  }
+}
+
+/* Navegação e acabamento visual */
+header {
+  box-shadow: 0 4px 18px rgba(35, 60, 43, 0.06);
+}
+
+nav a {
+  padding: 8px 10px;
+  border-radius: 999px;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+nav a:hover {
+  color: #315b47;
+  background: #eef5ef;
+}
+
+/* Seções de conteúdo */
+#como-funciona,
+#ajudar {
+  background: #f0f5f0;
+}
+
+.section-head {
+  margin-bottom: 26px;
+}
+
+.section-head .eyebrow {
+  margin-bottom: 6px;
+}
+
+/* Etapas da adoção */
+.step-num {
+  background: #315b47;
+  border-color: #315b47;
+  color: #fff;
+}
+
+/* Cartões de ajuda */
+.help-card {
+  border-color: #dce7dc;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.help-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(35, 60, 43, 0.1);
+}
+
+.help-card h3 {
+  color: #315b47;
+}
+
+/* Chamada final */
+.cta-card {
+  background: #315b47;
+  border-color: #315b47;
+  color: #fff;
+}
+
+.cta-card h2 {
+  color: #fff;
+}
+
+.cta-card .muted {
+  color: #e2eee4;
+}
+
+.cta-card .btn {
+  background: #fff;
+  border-color: #fff;
+  color: #315b47;
+  white-space: nowrap;
+}
+
+.cta-card .btn:hover {
+  background: #eaf2eb;
+  border-color: #eaf2eb;
+}
+
+/* Animações discretas; desativadas para quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  nav a,
+  .help-card {
+    transition: none;
+  }
+
+  .help-card:hover {
+    transform: none;
+  }
+}
+
+/* Área de resultados e mensagens da adoção */
+#resultsText {
+  color: #53665a;
+  font-weight: 700;
+  margin-top: 20px;
+}
+
+.empty-state {
+  max-width: 760px;
+  margin: 0 auto;
+  border: 1px solid #eadfcb;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fffaf0, #ffffff);
+  box-shadow: 0 8px 24px rgba(70, 57, 30, 0.06);
+}
+
+.empty-state h3 {
+  color: #5e4b2e;
+  font-size: 1.35rem;
+}
+
+.empty-state p {
+  max-width: 540px;
+  margin: 8px auto 0;
+  color: #716c60;
+}
+
+#retryLoad {
+  margin-top: 18px;
+  border-style: solid;
+  border-color: #315b47;
+  background: #315b47;
+  color: #fff;
+}
+
+#retryLoad:hover {
+  background: #254735;
+  border-color: #254735;
+}
+
+#animalsGrid[aria-busy="true"] {
+  opacity: 0.55;
+  transition: opacity 180ms ease;
+}
+
+@media (max-width: 620px) {
+  .empty-state {
+    padding: 24px 18px;
+  }
+}
+
+/* Destaque para as áreas de adoção e localização */
+#adocao,
+#perdidos {
+  background: #f7f9f6;
+}
+
+.section-head h2 {
+  color: #293c30;
+}
+
+.section-head p {
+  line-height: 1.7;
+}
+
+/* Filtros */
+.filters .field {
+  border-radius: 16px;
+}
+
+.filters .field input,
+.filters .field select {
+  min-height: 42px;
+}
+
+.filters > .btn {
+  align-self: end;
+  min-height: 62px;
+  border: 1px solid #315b47;
+  background: #315b47;
+  color: #fff;
+}
+
+.filters > .btn:hover {
+  background: #254735;
+  border-color: #254735;
+}
+
+/* Botão para limpar os filtros */
+#clearFilters {
+  border: 1px solid #cbd9cc;
+  background: #fff;
+  color: #315b47;
+}
+
+#clearFilters:hover {
+  background: #eef5ef;
+}
+
+/* Em telas pequenas, os controles ocupam toda a largura */
+@media (max-width: 620px) {
+  .filters > .btn {
+    min-height: 48px;
+  }
+
+  #clearFilters {
+    width: 100%;
+  }
+}
+
+/* Destaque para o botão de envio de relato */
+  .report-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border: 2px solid #315b47;
+    border-radius: 12px;
+    background: #315b47;
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 6px 16px rgba(49, 91, 71, 0.22);
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .report-btn:hover {
+    background: #254735;
+    border-color: #254735;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 9px 20px rgba(49, 91, 71, 0.28);
+  }
+
+  .report-btn:focus-visible {
+    outline: 3px solid #71967e;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 620px) {
+    .report-btn {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .report-btn {
+      transition: none;
+    }
+
+    .report-btn:hover {
+      transform: none;
+    }
+  }
+
+
+  .stats-heading {
+  margin-bottom: 22px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stat {
+  position: relative;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.stat strong {
+  color: #315b47;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.stat-icon {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+
+.stats-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.chart-card h3 {
+  color: #293c30;
+  margin-bottom: 6px;
+}
+
+.chart-card > .muted {
+  margin-bottom: 18px;
+  font-size: 0.92rem;
+}
+
+.bar-list {
+  display: grid;
+  gap: 14px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 100px minmax(50px, 1fr) 32px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.bar-track {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9efe9;
+}
+
+.bar-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: #4e8a60;
+  transition: width 250ms ease;
+}
+
+.bar-row:nth-child(2) .bar-fill {
+  background: #83b88a;
+}
+
+.bar-row:nth-child(3) .bar-fill {
+  background: #b5d4b5;
+}
+
+.bar-value {
+  color: #315b47;
+  font-weight: 800;
+  text-align: right;
+}
+
+.stats-note {
+  margin: 14px 2px 0;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 950px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .stats-grid,
+  .stats-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .stat {
+    min-height: 125px;
+  }
+
+  .bar-row {
+    grid-template-columns: 90px minmax(40px, 1fr) 28px;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill {
+    transition: none;
+  }
+}
+
+.support-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.support-link {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #d9e2da;
+  border-radius: 16px;
+  background: #fff;
+  color: #28352d;
+  box-shadow: 0 6px 20px rgba(35, 60, 43, 0.05);
+}
+
+a.support-link {
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+a.support-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(35, 60, 43, 0.1);
+}
+
+.support-icon {
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #eef5ef;
+  color: #315b47;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.support-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.support-copy strong {
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+}
+
+.support-copy > span {
+  color: #68756c;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.support-arrow {
+  margin-left: auto;
+  color: #315b47;
+  font-size: 1.2rem;
+}
+
+.pix-card {
+  flex-wrap: wrap;
+}
+
+.pix-copy-btn {
+  margin-left: auto;
+  padding: 9px 12px;
+  border: 1px solid #315b47;
+  border-radius: 10px;
+  background: #315b47;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pix-copy-btn:hover {
+  background: #254735;
+}
+
+.pix-copy-btn:focus-visible,
+.support-link:focus-visible {
+  outline: 3px solid #71967e;
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 620px) {
+  .support-links {
+    grid-template-columns: 1fr;
+  }
+
+  .pix-copy-btn {
+    width: 100%;
+    margin-left: 60px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.support-link {
+    transition: none;
+  }
+
+  a.support-link:hover {
+    transform: none;
+  }
+}
+
+
 </style>
 </head>
+
+
 <body>
 
 <header>
@@ -128,31 +888,134 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   <section id="inicio">
     <div class="container">
       <div class="card hero-card">
-        <div>
-          <span class="eyebrow">Adoção responsável</span>
-          <h1>Um encontro pode mudar duas vidas.</h1>
-          <p class="muted" style="max-width:700px;font-size:1.08rem">
-            Conheça os gatos cadastrados no AdoCat, descubra suas histórias e encontre um novo companheiro.
-            A plataforma também apresenta formas de apoiar a adoção responsável.
-          </p>
-          <div class="actions">
-            <a class="btn" href="#adocao">Encontrar um amigo →</a>
-            <a class="btn" href="#ajudar">Outras formas de ajudar</a>
-          </div>
-        </div>
-      </div>
+  <div class="hero-content">
+    <span class="eyebrow">Adoção responsável</span>
+    <h1>Um encontro pode mudar duas vidas.</h1>
+    <p class="muted hero-description">
+      Conheça os gatos cadastrados no AdoCat, descubra suas histórias
+      e encontre um novo companheiro.
+    </p>
+    <div class="actions">
+      <a class="btn" href="#adocao">Encontrar um amigo →</a>
+      <a class="btn" href="#ajudar">Outras formas de ajudar</a>
+    </div>
+  </div>
+
+  <div class="hero-image">
+    <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável">
+  </div>
+</div>
     </div>
   </section>
+  <div class="support-links" aria-label="Redes sociais e formas de apoiar o AdoCat">
+  <a
+    class="support-link"
+    href="https://www.instagram.com/adocatreserva/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Abrir o Instagram do AdoCat em uma nova aba">
+
+    <span class="support-icon" aria-hidden="true">◎</span>
+
+    <span class="support-copy">
+      <strong>@adocat.adocao</strong>
+      <span>Instagram</span>
+    </span>
+
+    <span class="support-arrow" aria-hidden="true">↗</span>
+  </a>
+
+  <div class="support-link pix-card">
+    <span class="support-icon pix-icon" aria-hidden="true">▦</span>
+
+    <span class="support-copy">
+      <strong>Doar via Pix</strong>
+      <span id="pixKey">adocat.adocao@gmail.com</span>
+    </span>
+
+    <button
+      class="pix-copy-btn"
+      type="button"
+      id="copyPixKey"
+      aria-describedby="pixFeedback">
+      Copiar chave
+    </button>
+
+    <span id="pixFeedback" class="sr-only" aria-live="polite"></span>
+  </div>
+</div>
 
   <!-- INDICADORES: valores carregados da API, sem números fictícios -->
-  <section class="stats" aria-label="Indicadores gerais">
+<!--   <section class="stats" aria-label="Indicadores gerais">
     <div class="container stats-grid">
       <div class="card stat"><strong id="countTotal" aria-live="polite">—</strong><span class="muted">gatos cadastrados</span></div>
       <div class="card stat"><strong id="countAvailable" aria-live="polite">—</strong><span class="muted">disponíveis para adoção</span></div>
       <div class="card stat"><strong id="countAdopted" aria-live="polite">—</strong><span class="muted">com status adotado</span></div>
       <div class="card stat"><strong id="countPercent" aria-live="polite">—</strong><span class="muted">dos gatos disponíveis</span></div>
     </div>
-  </section>
+  </section> -->
+  <section class="stats" id="indicadores" aria-label="Indicadores do AdoCat">
+  <div class="container">
+    <div class="section-head stats-heading">
+      <div>
+        <span class="eyebrow">AdoCat em números</span>
+        <h2>Um retrato dos gatos cadastrados</h2>
+        <p class="muted">
+          Indicadores calculados a partir dos registros disponíveis no AdoCat.
+        </p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <article class="card stat">
+        <span class="stat-icon" aria-hidden="true">🐈</span>
+        <strong id="countTotal" aria-live="polite">—</strong>
+        <span class="muted">gatos cadastrados</span>
+      </article>
+
+      <article class="card stat">
+        <span class="stat-icon" aria-hidden="true">🏠</span>
+        <strong id="countAvailable" aria-live="polite">—</strong>
+        <span class="muted">disponíveis para adoção</span>
+      </article>
+
+      <article class="card stat">
+        <span class="stat-icon" aria-hidden="true">💚</span>
+        <strong id="countAdopted" aria-live="polite">—</strong>
+        <span class="muted">com status adotado</span>
+      </article>
+
+      <article class="card stat">
+        <span class="stat-icon" aria-hidden="true">📊</span>
+        <strong id="countPercent" aria-live="polite">—</strong>
+        <span class="muted">indicador atual do AdoCat</span>
+      </article>
+    </div>
+
+    <div class="stats-charts">
+      <article class="card chart-card">
+        <h3>Distribuição por sexo</h3>
+        <p class="muted">Com base nos registros preenchidos.</p>
+        <div id="sexChart" class="bar-list" aria-live="polite">
+          Carregando dados…
+        </div>
+      </article>
+
+      <article class="card chart-card">
+        <h3>Distribuição por faixa etária</h3>
+        <p class="muted">A classificação depende dos dados cadastrados.</p>
+        <div id="ageChart" class="bar-list" aria-live="polite">
+          Carregando dados…
+        </div>
+      </article>
+    </div>
+
+    <p class="stats-note muted">
+      Os totais refletem os registros disponíveis na plataforma. Campos sem
+      informação não são incluídos nas distribuições.
+    </p>
+  </div>
+</section>
 
   <!-- ADOÇÃO: utiliza a API Java já publicada em /api/gatos -->
   <section id="adocao">
@@ -220,7 +1083,8 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
         <article class="card help-card">
           <h3>Doação</h3>
           <p class="muted">Apoie iniciativas de proteção animal com ração, medicamentos ou recursos. O recebimento de doações online ainda não está disponível.</p>
-          <button class="btn" type="button" disabled title="Em desenvolvimento">Em breve</button>
+          
+          
         </article>
         <article class="card help-card">
           <h3>Lar temporário</h3>
@@ -244,18 +1108,50 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
           <div>
             <span class="eyebrow">Perdidos & encontrados</span>
             <h2>Encontrou um gato perdido?</h2>
-            <p class="muted">O cadastro de ocorrências e o mapa de animais perdidos estão previstos para uma próxima etapa.</p>
+            <!-- <p class="muted">O cadastro de ocorrências e o mapa de animais perdidos estão previstos para uma próxima etapa.</p> -->
+             <p class="muted">
+  Viu um gato em possível situação de abandono em Matão – SP?
+  Envie um relato para avaliação da equipe. 
+</p>
           </div>
-          <button class="btn" type="button" disabled title="Em desenvolvimento">Em breve</button>
+          <!-- <button class="btn" type="button" disabled title="Em desenvolvimento">Em breve</button> -->
+           <a
+  class="btn report-btn"
+  
+  href="https://docs.google.com/forms/d/e/1FAIpQLSclGdWKBgb3KJBpSP_cRfkoBf5xcoOoVsgp6UtIYESQs8ljgA/viewform?usp=publish-editor"
+  target="_blank"
+  rel="noopener noreferrer">
+  Relatar um animal
+</a>
         </article>
 
-        <article class="card map-card">
+<!--         <article class="card map-card">
           <div>
             <span class="eyebrow">Mapa / localização</span>
             <h3 style="font-size:1.5rem;margin:16px 0 8px">Mapa de ocorrências em desenvolvimento</h3>
             <p class="muted">Nesta versão, o AdoCat exibe os gatos cadastrados na API. Fotos e mapa serão integrados futuramente.</p>
           </div>
-        </article>
+        </article> -->
+<article class="card map-card">
+  <div class="map-intro">
+    <span class="eyebrow">Mapa demonstrativo</span>
+    <h3>Gatos encontrados em situação de abandono em Matão–SP</h3>
+    <p class="muted">
+O mapa reúne locais aproximados onde gatos foram identificados em situação de abandono. Os registros são apresentados para apoiar a conscientização e a proteção animal. Por segurança e privacidade, os marcadores não indicam endereços exatos.
+    </p>
+  </div>
+
+  <div
+    id="occurrenceMap"
+    role="region"
+    aria-label="Mapa demonstrativo centrado em Matão, São Paulo">
+  </div>
+
+  <p class="map-note muted">
+    <!-- Demonstração com pontos aproximados e fictícios. -->
+  </p>
+</article>
+
       </div>
     </div>
   </section>
@@ -266,9 +1162,9 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
       <div class="card cta-card">
         <div>
           <h2>Seu próximo companheiro pode estar aqui.</h2>
-          <p class="muted">Confira os gatos cadastrados e suas informações. O formulário de solicitação de adoção será implementado na próxima etapa.</p>
+          <p class="muted">Conheça os gatos cadastrados no AdoCat e descubra a história de cada um.</p>
         </div>
-        <a class="btn" href="#adocao">Ver animais</a>
+        <a class="btn" href="#adocao">Ver gatos disponíveis</a>
       </div>
     </div>
   </section>
@@ -464,6 +1360,191 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   loadCats();
 })();
 </script>
+
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin="">
+</script>
+
+<script>
+  (() => {
+    const mapElement = document.getElementById('occurrenceMap');
+
+    if (!mapElement) return;
+
+    if (!window.L) {
+      mapElement.textContent =
+        'O mapa não carregou. Verifique a conexão com a internet e atualize a página.';
+      return;
+    }
+
+    const map = L.map(mapElement).setView([-21.603, -48.365], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // Exemplos inteiramente fictícios. Não representam animais ou ocorrências reais.
+    const demoPoints = [
+      {
+        lat: -21.595, lng: -48.371,
+        id: 'Exemplo 01',
+        raca: 'Bengal',
+        cor: 'Laranja e branco',
+        sexo: 'Macho',
+        idade: 'Jovem',
+        peso: '3,2 kg',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-1.jpg'
+      },
+      {
+        lat: -21.608, lng: -48.356,
+        id: 'Exemplo 02',
+        raca: 'Sem raça definida (SRD)',
+        cor: 'Cinza',
+        sexo: 'Fêmea',
+        idade: 'Adulta',
+        peso: '3,8 kg',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-2.jpg'
+      },
+      {
+        lat: -21.615, lng: -48.377,
+        id: 'Exemplo 03',
+        raca: 'Bengal',
+        cor: 'Preto e branco',
+        sexo: 'Não informado',
+        idade: 'Não informada',
+        peso: 'Não informado',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-3.jpg'
+      },
+      {
+        lat: -21.590, lng: -48.350,
+        id: 'Exemplo 04',
+        raca: 'Savannah',
+        cor: 'Tigrada',
+        sexo: 'Macho',
+        idade: 'Filhote',
+        peso: '1,4 kg',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-4.jpg'
+      },
+      {
+        lat: -21.620, lng: -48.360,
+        id: 'Exemplo 05',
+        raca: 'Abissínio',
+        cor: 'Branca',
+        sexo: 'Fêmea',
+        idade: 'Não informada',
+        peso: 'Não informado',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-5.jpg'
+      },
+      {
+        lat: -21.600, lng: -48.385,
+        id: 'Exemplo 06',
+        raca: 'Siamêsa',
+        cor: 'Cinza e branca',
+        sexo: 'Não informado',
+        idade: 'Adulta',
+        peso: '4,1 kg ',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-6.jpg'
+      }
+    ];
+
+    function escaparHtml(valor) {
+      return String(valor).replace(/[&<>"']/g, (caractere) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[caractere]);
+    }
+
+/*     demoPoints.forEach((gato) => {
+      const marcador = L.circleMarker([gato.lat, gato.lng], {
+        radius: 9,
+        color: '#ffffff',
+        weight: 2,
+        fillColor: '#315b47',
+        fillOpacity: 0.9
+      }).addTo(map);
+
+      // Dica curta ao passar o mouse. No celular, toque no marcador.
+      marcador.bindTooltip(
+        `<strong>${escaparHtml(gato.id)}</strong> · ${escaparHtml(gato.cor)}`,
+        { direction: 'top', sticky: true }
+      );
+
+      // Resumo exibido ao clicar ou tocar no marcador.
+      marcador.bindPopup(`
+        <strong>${escaparHtml(gato.id)} — perfil demonstrativo</strong>
+        <br><strong>Raça:</strong> ${escaparHtml(gato.raca)}
+        <br><strong>Cor:</strong> ${escaparHtml(gato.cor)}
+        <br><strong>Sexo:</strong> ${escaparHtml(gato.sexo)}
+        <br><strong>Idade:</strong> ${escaparHtml(gato.idade)}
+        <br><strong>Peso:</strong> ${escaparHtml(gato.peso)}
+        <br><strong>Situação:</strong> ${escaparHtml(gato.situacao)}
+        <br><small>Matão–SP · dados fictícios para demonstração</small>
+      `);
+    }); */
+
+const markers = [];
+
+demoPoints.forEach((gato) => {
+  const marcador = L.circleMarker([gato.lat, gato.lng], {
+    radius: 9,
+    color: '#ffffff',
+    weight: 2,
+    fillColor: '#315b47',
+    fillOpacity: 0.9
+  }).addTo(map);
+
+  markers.push(marcador);
+
+  const foto = gato.imagem
+    ? `<img src="${escaparHtml(gato.imagem)}"
+            alt="Foto ilustrativa do ${escaparHtml(gato.id)}">`
+    : '';
+
+  const resumo = `
+    ${foto}
+    <strong>${escaparHtml(gato.id)}: </strong><br>
+    Raça: ${escaparHtml(gato.raca)}<br>
+    Cor: ${escaparHtml(gato.cor)}<br>
+    Sexo: ${escaparHtml(gato.sexo)}<br>
+    Idade: ${escaparHtml(gato.idade)}<br>
+    Peso: ${escaparHtml(gato.peso)}<br>
+    <small>Matão–SP</small>
+  `;
+
+  marcador.bindTooltip(resumo, {
+    direction: 'top',
+    sticky: true,
+    opacity: 0.98,
+    className: 'cat-tooltip'
+  });
+
+  marcador.bindPopup(resumo, {
+    maxWidth: 280
+  });
+});
+
+// Ajusta o enquadramento para mostrar todos os marcadores.
+if (markers.length) {
+  map.fitBounds(L.featureGroup(markers).getBounds(), {
+    padding: [24, 24],
+    maxZoom: 14
+  });
+}
+  })();
+</script>
+
 
 </body>
 </html>
