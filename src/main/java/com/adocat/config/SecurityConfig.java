@@ -1,3 +1,4 @@
+
 package com.adocat.config;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Site público e consulta pública de animais
                 .requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico", "/api/gatos", "/api/gatos/**").permitAll()
+                // Imagens públicas do banner e dos gatos no mapa
+                .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
                 // Tela de autenticação e endpoint que fornece token CSRF
                 .requestMatchers("/admin-login.html", "/api/security/csrf", "/error").permitAll()
                 // Área restrita e rotas administrativas
