@@ -865,14 +865,6 @@ a.support-link:hover {
 
 
 
-/* Exibe um espaço adequado quando a imagem do banner ainda não foi publicada. */
-.hero-image{position:relative}
-.hero-image .hero-placeholder{display:none}
-.hero-image.missing-photo{display:grid;place-items:center;text-align:center;background:linear-gradient(135deg,#dfeee1,#eef5e9)}
-.hero-image.missing-photo .hero-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#315b47;padding:30px}
-.hero-placeholder span{font-size:clamp(4rem,8vw,7rem);line-height:1}
-.hero-placeholder small{font-size:1.05rem;font-weight:700}
-
 </style>
 </head>
 
@@ -911,49 +903,11 @@ a.support-link:hover {
   </div>
 
   <div class="hero-image">
-    <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável" onerror="this.hidden=true; this.parentElement.classList.add('missing-photo');">
-    <div class="hero-placeholder" aria-hidden="true"><span>🐈</span><small>Um novo amigo espera por um lar</small></div>
+    <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável">
   </div>
 </div>
     </div>
   </section>
-  <div class="support-links" aria-label="Redes sociais e formas de apoiar o AdoCat">
-  <a
-    class="support-link"
-    href="https://www.instagram.com/adocatreserva/"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Abrir o Instagram do AdoCat em uma nova aba">
-
-    <span class="support-icon" aria-hidden="true">◎</span>
-
-    <span class="support-copy">
-      <strong>@adocat.adocao</strong>
-      <span>Instagram</span>
-    </span>
-
-    <span class="support-arrow" aria-hidden="true">↗</span>
-  </a>
-
-  <div class="support-link pix-card">
-    <span class="support-icon pix-icon" aria-hidden="true">▦</span>
-
-    <span class="support-copy">
-      <strong>Doar via Pix</strong>
-      <span id="pixKey">adocat.adocao@gmail.com</span>
-    </span>
-
-    <button
-      class="pix-copy-btn"
-      type="button"
-      id="copyPixKey"
-      aria-describedby="pixFeedback">
-      Copiar chave
-    </button>
-
-    <span id="pixFeedback" class="sr-only" aria-live="polite"></span>
-  </div>
-</div>
 
   <!-- INDICADORES: valores carregados da API, sem números fictícios -->
 <!--   <section class="stats" aria-label="Indicadores gerais">
@@ -964,6 +918,52 @@ a.support-link:hover {
       <div class="card stat"><strong id="countPercent" aria-live="polite">—</strong><span class="muted">dos gatos disponíveis</span></div>
     </div>
   </section> -->
+
+  <!-- Redes sociais e formas de apoiar -->
+<section id="apoio" aria-label="Redes sociais e formas de apoiar o AdoCat">
+  <div class="container">
+    <div class="support-links">
+
+      <a
+        class="support-link"
+        href="https://www.instagram.com/adocatreserva/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Abrir o Instagram do AdoCat em uma nova aba">
+
+        <span class="support-icon" aria-hidden="true">◎</span>
+
+        <span class="support-copy">
+          <strong>@adocat.adocao</strong>
+          <span>Instagram</span>
+        </span>
+
+        <span class="support-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <div class="support-link pix-card">
+        <span class="support-icon pix-icon" aria-hidden="true">▦</span>
+
+        <span class="support-copy">
+          <strong>Doar via Pix</strong>
+          <span id="pixKey">adocat.adocao@gmail.com</span>
+        </span>
+
+        <button
+          class="pix-copy-btn"
+          type="button"
+          id="copyPixKey"
+          aria-describedby="pixFeedback">
+          Copiar chave
+        </button>
+
+        <span id="pixFeedback" class="sr-only" aria-live="polite"></span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
   <section class="stats" id="indicadores" aria-label="Indicadores do AdoCat">
   <div class="container">
     <div class="section-head stats-heading">
@@ -1157,9 +1157,7 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
     aria-label="Mapa demonstrativo centrado em Matão, São Paulo">
   </div>
 
-  <p class="map-note muted">
-    <!-- Demonstração com pontos aproximados e fictícios. -->
-  </p>
+  <p class="map-note muted">Mapa demonstrativo: marcadores e perfis fictícios; não representam ocorrências reais.</p>
 </article>
 
       </div>
@@ -1225,13 +1223,11 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
     return kind === 'f' ? 'Fêmea' : kind === 'm' ? 'Macho' : String(sex || 'Não informado');
   }
   function ageGroup(age) {
-    if (age === null || age === undefined || String(age).trim() === '') return 'outro';
     const n = Number(age);
     if (!Number.isFinite(n) || n < 0) return 'outro';
     return n <= 1 ? 'filhote' : n <= 3 ? 'jovem' : 'adulto';
   }
   function ageLabel(age) {
-    if (age === null || age === undefined || String(age).trim() === '') return 'Idade não informada';
     const n = Number(age);
     if (!Number.isFinite(n) || n < 0) return 'Idade não informada';
     return n === 0 ? 'Menos de 1 ano' : n === 1 ? '1 ano' : n + ' anos';
@@ -1321,9 +1317,9 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
       ['Machos', allCats.filter(cat => sexKind(cat.sexo) === 'm').length]
     ]);
     renderBarChart('ageChart', [
-      ['Filhotes', allCats.filter(cat => ageGroup(cat.idade) === 'filhote').length],
-      ['Jovens', allCats.filter(cat => ageGroup(cat.idade) === 'jovem').length],
-      ['Adultos', allCats.filter(cat => ageGroup(cat.idade) === 'adulto').length]
+      ['Filhotes', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'filhote').length],
+      ['Jovens', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'jovem').length],
+      ['Adultos', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'adulto').length]
     ]);
   }
   function setCounters() {
