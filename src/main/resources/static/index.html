@@ -864,6 +864,15 @@ a.support-link:hover {
 }
 
 
+
+/* Exibe um espaço adequado quando a imagem do banner ainda não foi publicada. */
+.hero-image{position:relative}
+.hero-image .hero-placeholder{display:none}
+.hero-image.missing-photo{display:grid;place-items:center;text-align:center;background:linear-gradient(135deg,#dfeee1,#eef5e9)}
+.hero-image.missing-photo .hero-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#315b47;padding:30px}
+.hero-placeholder span{font-size:clamp(4rem,8vw,7rem);line-height:1}
+.hero-placeholder small{font-size:1.05rem;font-weight:700}
+
 </style>
 </head>
 
@@ -902,7 +911,8 @@ a.support-link:hover {
   </div>
 
   <div class="hero-image">
-    <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável">
+    <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável" onerror="this.hidden=true; this.parentElement.classList.add('missing-photo');">
+    <div class="hero-placeholder" aria-hidden="true"><span>🐈</span><small>Um novo amigo espera por um lar</small></div>
   </div>
 </div>
     </div>
@@ -1215,11 +1225,13 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
     return kind === 'f' ? 'Fêmea' : kind === 'm' ? 'Macho' : String(sex || 'Não informado');
   }
   function ageGroup(age) {
+    if (age === null || age === undefined || String(age).trim() === '') return 'outro';
     const n = Number(age);
     if (!Number.isFinite(n) || n < 0) return 'outro';
     return n <= 1 ? 'filhote' : n <= 3 ? 'jovem' : 'adulto';
   }
   function ageLabel(age) {
+    if (age === null || age === undefined || String(age).trim() === '') return 'Idade não informada';
     const n = Number(age);
     if (!Number.isFinite(n) || n < 0) return 'Idade não informada';
     return n === 0 ? 'Menos de 1 ano' : n === 1 ? '1 ano' : n + ' anos';
@@ -1283,6 +1295,37 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
     article.append(top, chips, desc, extra, actions);
     return article;
   }
+  function renderBarChart(containerId, rows) {
+    const container = el(containerId);
+    const total = rows.reduce((sum, row) => sum + row[1], 0);
+    container.replaceChildren();
+    if (!total) {
+      container.append(text('p', 'Sem dados disponíveis para este gráfico.', 'muted'));
+      return;
+    }
+    const highest = Math.max(...rows.map(row => row[1]), 1);
+    rows.forEach(([label, value]) => {
+      const row = text('div', '', 'bar-row');
+      const name = text('span', label);
+      const track = text('div', '', 'bar-track');
+      const fill = text('div', '', 'bar-fill');
+      fill.style.width = (100 * value / highest) + '%';
+      track.append(fill);
+      row.append(name, track, text('strong', value, 'bar-value'));
+      container.append(row);
+    });
+  }
+  function updateCharts() {
+    renderBarChart('sexChart', [
+      ['Fêmeas', allCats.filter(cat => sexKind(cat.sexo) === 'f').length],
+      ['Machos', allCats.filter(cat => sexKind(cat.sexo) === 'm').length]
+    ]);
+    renderBarChart('ageChart', [
+      ['Filhotes', allCats.filter(cat => ageGroup(cat.idade) === 'filhote').length],
+      ['Jovens', allCats.filter(cat => ageGroup(cat.idade) === 'jovem').length],
+      ['Adultos', allCats.filter(cat => ageGroup(cat.idade) === 'adulto').length]
+    ]);
+  }
   function setCounters() {
     const available = allCats.filter(c => statusKind(c.status) === 'disponivel').length;
     const adopted = allCats.filter(c => statusKind(c.status) === 'adotado').length;
@@ -1290,6 +1333,7 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
     el('countAvailable').textContent = available;
     el('countAdopted').textContent = adopted;
     el('countPercent').textContent = allCats.length ? (100 * available / allCats.length).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '0%';
+    updateCharts();
   }
   function getFiltered() {
     const name = normalize(el('searchName').value);
@@ -1317,33 +1361,81 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
     }
     el('resultsText').textContent = `${matches.length} ${matches.length === 1 ? 'gato encontrado' : 'gatos encontrados'}`;
   }
+  // A VPS pode demorar a responder logo após uma implantação. Antes, o site
+  // cancelava cada consulta em 12 segundos e classificava a lentidão como erro.
+  const REQUEST_TIMEOUT_MS = 60000;
+  const MAX_REQUEST_ATTEMPTS = 2;
+  async function requestCats() {
+    let lastError;
+    for (let attempt = 1; attempt <= MAX_REQUEST_ATTEMPTS; attempt++) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const response = await fetch(API_URL, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        if (!response.ok) {
+          const error = new Error('A API respondeu HTTP ' + response.status);
+          error.httpStatus = response.status;
+          throw error;
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error('A API retornou um formato inesperado.');
+        return data;
+      } catch (error) {
+        lastError = error;
+        // Repetir apenas erros de conexão/timeout ou de leitura, não um 401/403/500.
+        if (error.httpStatus || attempt === MAX_REQUEST_ATTEMPTS) break;
+        el('resultsText').textContent = 'O servidor está demorando a responder. Tentando novamente...';
+        console.warn('AdoCat: primeira consulta à API não foi concluída:', error);
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+    throw lastError;
+  }
   async function loadCats() {
     loadingFailed = false;
     el('resultsText').textContent = 'Carregando gatos cadastrados...';
     el('animalsGrid').setAttribute('aria-busy', 'true');
     el('emptyState').hidden = true;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
+    el('retryLoad').hidden = true;
     try {
-      const response = await fetch(API_URL, { method: 'GET', headers: { 'Accept': 'application/json' }, signal: controller.signal, cache: 'no-store' });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      const data = await response.json();
-      if (!Array.isArray(data)) throw new Error('Formato inesperado de resposta');
+      const data = await requestCats();
       allCats = data.filter(item => item && typeof item === 'object');
-      setCounters();
-      render();
     } catch (error) {
       loadingFailed = true;
       el('animalsGrid').replaceChildren();
       el('animalsGrid').setAttribute('aria-busy', 'false');
-      el('resultsText').textContent = 'Não foi possível carregar os gatos.';
+      el('resultsText').textContent = 'Não foi possível consultar os gatos neste momento.';
       el('emptyState').hidden = false;
-      el('emptyTitle').textContent = 'Falha na conexão com a API';
-      el('emptyMessage').textContent = 'O site abriu, mas não conseguiu consultar /api/gatos. Tente novamente.';
+      el('emptyTitle').textContent = 'Não foi possível consultar a API';
+      el('emptyMessage').textContent = error.name === 'AbortError'
+        ? 'O servidor demorou a responder. Verifique se o serviço está ativo e tente novamente.'
+        : 'O site não conseguiu obter os dados de /api/gatos. Tente novamente.';
       el('retryLoad').hidden = false;
       ['countTotal','countAvailable','countAdopted','countPercent'].forEach(id => { el(id).textContent = '—'; });
-      console.error('AdoCat: falha ao carregar a API de gatos:', error);
-    } finally { clearTimeout(timeout); }
+      ['sexChart','ageChart'].forEach(id => { el(id).textContent = 'Dados indisponíveis no momento.'; });
+      console.error('AdoCat: erro ao consultar /api/gatos:', error);
+      return;
+    }
+    // Uma resposta HTTP 200 com [] é válida: mostrar zero gatos, não erro de API.
+    try {
+      setCounters();
+      render();
+    } catch (error) {
+      console.error('AdoCat: erro ao exibir a resposta da API:', error);
+      el('resultsText').textContent = 'Erro ao exibir os dados recebidos.';
+      el('animalsGrid').setAttribute('aria-busy', 'false');
+      el('emptyState').hidden = false;
+      el('emptyTitle').textContent = 'Erro ao apresentar os gatos';
+      el('emptyMessage').textContent = 'A API respondeu, mas houve um erro na apresentação dos dados.';
+      el('retryLoad').hidden = false;
+      loadingFailed = true;
+    }
   }
   el('filtersForm').addEventListener('submit', event => { event.preventDefault(); if (!loadingFailed) render(); });
   ['searchName','filterSex','filterAge','filterStatus'].forEach(id => el(id).addEventListener(id === 'searchName' ? 'input' : 'change', () => { if (!loadingFailed) render(); }));
