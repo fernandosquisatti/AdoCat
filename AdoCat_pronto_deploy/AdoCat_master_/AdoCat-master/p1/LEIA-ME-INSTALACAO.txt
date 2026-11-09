@@ -1,0 +1,34 @@
+ADOCAT — VERSÃO ATUALIZADA
+==========================
+
+PRINCIPAIS ALTERAÇÕES
+- Indicador público renomeado para explicar claramente o percentual de gatos disponíveis para adoção.
+- Raça e cor/pelagem passaram a ser campos separados no cadastro e na visualização dos gatos.
+- Catálogo público mostra inicialmente três gatos; os adotados ficam no final da lista. O botão "Ver mais gatos" expande os demais.
+- Painel administrativo ganhou a área funcional de Resgates: cadastrar, editar, filtrar e excluir ocorrências, com data, localização aproximada, condição inicial, responsável, descrição e andamento.
+- Removida a carga automática de registros fictícios e os avisos/banners de demonstração.
+- Dados pessoais/credenciais que estavam gravados no arquivo de configuração foram retirados. O contato público agora usa dados de exemplo reservados e deve ser substituído pelos contatos oficiais antes da publicação.
+
+COMO EXECUTAR NO WINDOWS
+1. Abra a pasta AdoCat-master no IntelliJ.
+2. Abra o terminal na mesma pasta em que está o arquivo mvnw.cmd.
+3. Configure as variáveis no mesmo terminal (substitua pela senha local do MySQL; não compartilhe esse valor):
+   $env:DB_USERNAME="root"
+   $env:DB_PASSWORD="SUA_SENHA_LOCAL_DO_MYSQL"
+   $env:APP_ADMIN_USERNAME="admin"
+   $env:APP_ADMIN_PASSWORD="DEFINA_UMA_SENHA_FORTE"
+4. Inicie:
+   .\mvnw.cmd spring-boot:run
+5. Acesse http://localhost:8080 e http://localhost:8080/admin-login.html
+
+BANCO DE DADOS
+- O projeto usa spring.jpa.hibernate.ddl-auto=update. As novas colunas de raça/cor e a tabela tb_resgates serão criadas/atualizadas sem apagar as tabelas existentes.
+- A senha do MySQL não fica armazenada neste projeto. Configure DB_PASSWORD no terminal ou no ambiente de implantação.
+- Faça backup do banco antes de atualizar.
+- O carregador automático de dados demonstrativos foi removido. Novos registros devem ser cadastrados pela administração.
+
+LIMPEZA OPCIONAL DE REGISTROS FICTÍCIOS ANTIGOS
+Se você já executou uma versão anterior com APP_DEMO_DATA=true, os registros fictícios antigos podem continuar gravados no MySQL. Depois de fazer backup, revise e execute o arquivo LIMPAR_REGISTROS_DEMO.sql no banco adocat. Ele apaga somente linhas cujo nome começa com "DEMO •". Não execute se quiser manter esses registros.
+
+PAGAMENTOS
+A confirmação do Pix/cartão nesta versão é apenas um registro no sistema. Não há cobrança nem confirmação bancária real. Para receber doações reais, será necessária integração com um provedor de pagamento e confirmação server-side.
