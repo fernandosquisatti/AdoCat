@@ -95,6 +95,24 @@
       margin: 10px 0 8px;
     }
 
+    #occurrenceMap {
+      width: 100%;
+      height: 360px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #eef5ef;
+    }
+
+    /* Estilo das dicas e das fotos dos gatos no mapa */
+    .cat-tooltip { white-space: normal; max-width: 260px; }
+    .cat-tooltip img,
+    .leaflet-popup-content img {
+      display: block; width: 100%; height: 120px;
+      margin-bottom: 8px; border-radius: 8px; object-fit: cover;
+    }
+    .map-note { margin: 12px 0 0; font-size: 0.9rem; }
+    @media (max-width: 620px) { #occurrenceMap { height: 300px; } }
+
     @media (max-width: 620px) {
       .map-card {
         padding: 16px;
@@ -1236,11 +1254,12 @@
         </article>
         <article class="card map-card">
           <div class="map-intro">
-            <span class="eyebrow">Proteção animal</span>
-            <h3>Registro e acompanhamento de resgates</h3>
-            <p class="muted">A equipe administrativa registra a data, a região, a condição inicial do animal e os encaminhamentos realizados. Endereços exatos e dados pessoais não são exibidos publicamente.</p>
+            <span class="eyebrow">Mapa demonstrativo</span>
+            <h3>Gatos encontrados em situação de abandono em Matão–SP</h3>
+            <p class="muted">O mapa reúne locais aproximados onde gatos foram identificados em situação de abandono. Os registros são apresentados para apoiar a conscientização e a proteção animal. Por segurança e privacidade, os marcadores não indicam endereços exatos.</p>
           </div>
-          <div class="card-actions"><a class="btn" href="#ajudar">Quero ajudar nos resgates</a></div>
+          <div id="occurrenceMap" role="region" aria-label="Mapa demonstrativo centrado em Matão, São Paulo"></div>
+          <p class="map-note muted">Mapa demonstrativo: marcadores e perfis fictícios; não representam ocorrências reais.</p>
         </article>
       </div>
     </div>
@@ -1670,6 +1689,191 @@
  document.querySelectorAll('.inscricao-form input[name="cpf"]').forEach(el=>el.addEventListener('input',()=>{let v=onlyDigits(el.value).slice(0,11);if(v.length>9)v=v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2}).*$/,'$1.$2.$3-$4');else if(v.length>6)v=v.replace(/^(\d{3})(\d{3})(\d{0,3}).*$/,'$1.$2.$3');else if(v.length>3)v=v.replace(/^(\d{3})(\d{0,3}).*$/,'$1.$2');el.value=v;}));
  document.querySelectorAll('.inscricao-form').forEach(form=>form.addEventListener('submit',async e=>{e.preventDefault();const msg=form.querySelector('[role="status"]');const fd=new FormData(form);const data=Object.fromEntries(fd.entries());data.tipo=form.dataset.tipo;data.possuiAnimais=data.possuiAnimais==='true';if(data.capacidadeAcolhimento)data.capacidadeAcolhimento=Number(data.capacidadeAcolhimento);if(!cpfValido(data.cpf)){msg.textContent='CPF inválido. Confira os números digitados.';return;}const btn=form.querySelector('button[type="submit"]');btn.disabled=true;msg.textContent='Enviando inscrição...';try{const r=await fetch('/api/inscricoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});let body={};try{body=await r.json()}catch{}if(!r.ok)throw new Error(body.message||body.detail||'Não foi possível enviar a inscrição.');form.reset();msg.textContent=body.mensagem||'Inscrição enviada! Aguarde a análise da equipe.';}catch(err){msg.textContent=err.message;}finally{btn.disabled=false;}}));
 })();
+</script>
+
+
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin="">
+</script>
+
+<script>
+  (() => {
+    const mapElement = document.getElementById('occurrenceMap');
+
+    if (!mapElement) return;
+
+    if (!window.L) {
+      mapElement.textContent =
+        'O mapa não carregou. Verifique a conexão com a internet e atualize a página.';
+      return;
+    }
+
+    const map = L.map(mapElement).setView([-21.603, -48.365], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // Exemplos inteiramente fictícios. Não representam animais ou ocorrências reais.
+    const demoPoints = [
+      {
+        lat: -21.595, lng: -48.371,
+        id: 'Exemplo 01',
+        raca: 'Bengal',
+        cor: 'Laranja e branco',
+        sexo: 'Macho',
+        idade: 'Jovem',
+        peso: '3,2 kg',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-1.jpg'
+      },
+      {
+        lat: -21.608, lng: -48.356,
+        id: 'Exemplo 02',
+        raca: 'Sem raça definida (SRD)',
+        cor: 'Cinza',
+        sexo: 'Fêmea',
+        idade: 'Adulta',
+        peso: '3,8 kg',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-2.jpg'
+      },
+      {
+        lat: -21.615, lng: -48.377,
+        id: 'Exemplo 03',
+        raca: 'Bengal',
+        cor: 'Preto e branco',
+        sexo: 'Não informado',
+        idade: 'Não informada',
+        peso: 'Não informado',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-3.jpg'
+      },
+      {
+        lat: -21.590, lng: -48.350,
+        id: 'Exemplo 04',
+        raca: 'Savannah',
+        cor: 'Tigrada',
+        sexo: 'Macho',
+        idade: 'Filhote',
+        peso: '1,4 kg',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-4.jpg'
+      },
+      {
+        lat: -21.620, lng: -48.360,
+        id: 'Exemplo 05',
+        raca: 'Abissínio',
+        cor: 'Branca',
+        sexo: 'Fêmea',
+        idade: 'Não informada',
+        peso: 'Não informado',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-5.jpg'
+      },
+      {
+        lat: -21.600, lng: -48.385,
+        id: 'Exemplo 06',
+        raca: 'Siamêsa',
+        cor: 'Cinza e branca',
+        sexo: 'Não informado',
+        idade: 'Adulta',
+        peso: '4,1 kg ',
+        situacao: 'Dado demonstrativo',
+        imagem: 'images/gatos/gato-6.jpg'
+      }
+    ];
+
+    function escaparHtml(valor) {
+      return String(valor).replace(/[&<>"']/g, (caractere) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[caractere]);
+    }
+
+/*     demoPoints.forEach((gato) => {
+      const marcador = L.circleMarker([gato.lat, gato.lng], {
+        radius: 9,
+        color: '#ffffff',
+        weight: 2,
+        fillColor: '#315b47',
+        fillOpacity: 0.9
+      }).addTo(map);
+
+      // Dica curta ao passar o mouse. No celular, toque no marcador.
+      marcador.bindTooltip(
+        `<strong>${escaparHtml(gato.id)}</strong> · ${escaparHtml(gato.cor)}`,
+        { direction: 'top', sticky: true }
+      );
+
+      // Resumo exibido ao clicar ou tocar no marcador.
+      marcador.bindPopup(`
+        <strong>${escaparHtml(gato.id)} — perfil demonstrativo</strong>
+        <br><strong>Raça:</strong> ${escaparHtml(gato.raca)}
+        <br><strong>Cor:</strong> ${escaparHtml(gato.cor)}
+        <br><strong>Sexo:</strong> ${escaparHtml(gato.sexo)}
+        <br><strong>Idade:</strong> ${escaparHtml(gato.idade)}
+        <br><strong>Peso:</strong> ${escaparHtml(gato.peso)}
+        <br><strong>Situação:</strong> ${escaparHtml(gato.situacao)}
+        <br><small>Matão–SP · dados fictícios para demonstração</small>
+      `);
+    }); */
+
+const markers = [];
+
+demoPoints.forEach((gato) => {
+  const marcador = L.circleMarker([gato.lat, gato.lng], {
+    radius: 9,
+    color: '#ffffff',
+    weight: 2,
+    fillColor: '#315b47',
+    fillOpacity: 0.9
+  }).addTo(map);
+
+  markers.push(marcador);
+
+  const foto = gato.imagem
+    ? `<img src="${escaparHtml(gato.imagem)}"
+            alt="Foto ilustrativa do ${escaparHtml(gato.id)}">`
+    : '';
+
+  const resumo = `
+    ${foto}
+    <strong>${escaparHtml(gato.id)}: </strong><br>
+    Raça: ${escaparHtml(gato.raca)}<br>
+    Cor: ${escaparHtml(gato.cor)}<br>
+    Sexo: ${escaparHtml(gato.sexo)}<br>
+    Idade: ${escaparHtml(gato.idade)}<br>
+    Peso: ${escaparHtml(gato.peso)}<br>
+    <small>Matão–SP</small>
+  `;
+
+  marcador.bindTooltip(resumo, {
+    direction: 'top',
+    sticky: true,
+    opacity: 0.98,
+    className: 'cat-tooltip'
+  });
+
+  marcador.bindPopup(resumo, {
+    maxWidth: 280
+  });
+});
+
+// Ajusta o enquadramento para mostrar todos os marcadores.
+if (markers.length) {
+  map.fitBounds(L.featureGroup(markers).getBounds(), {
+    padding: [24, 24],
+    maxZoom: 14
+  });
+}
+  })();
 </script>
 
 </body>
