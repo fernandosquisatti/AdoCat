@@ -1,871 +1,846 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AdoCat | Adoção responsável de gatos</title>
-<meta name="description" content="AdoCat: encontre gatos disponíveis para adoção responsável. Consulte os animais cadastrados na plataforma." />
-
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-  crossorigin=""
->
-
-
-
-<style>
-:root{
-  --bg:#f4f4f4;
-  --card:#fff;
-  --line:#bdbdbd;
-  --line2:#dedede;
-  --text:#333;
-  --muted:#777;
-  --max:1180px;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
-a{text-decoration:none;color:inherit}
-button,input,select{font:inherit}
-.container{width:min(var(--max),calc(100% - 32px));margin:auto}
-header{border-bottom:1px solid var(--line2);background:#fff;position:sticky;top:0;z-index:20}
-.nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:10px}
-.logo-box{width:42px;height:42px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;color:#888}
-nav{display:flex;gap:24px;font-weight:700;color:#666;font-size:.92rem}
-.btn{border:2px dashed var(--line);background:#fff;border-radius:10px;padding:11px 16px;font-weight:800;color:#555}
-section{padding:34px 0}
-.card{background:var(--card);border:2px dashed var(--line);border-radius:18px;padding:22px}
-.hero-card{padding:36px;min-height:360px;display:flex;align-items:center}
-.eyebrow{font-size:.75rem;font-weight:800;text-transform:uppercase;color:#888;border:1px solid var(--line2);padding:6px 9px;border-radius:999px;display:inline-block}
-h1{font-size:clamp(2.7rem,6vw,5rem);line-height:.98;letter-spacing:-.05em;margin:18px 0;max-width:800px}
-h2{font-size:clamp(2rem,4vw,3.1rem);line-height:1;letter-spacing:-.04em;margin:12px 0 8px}
-h3{margin:0 0 8px}
-p{margin-top:0}
-.muted{color:var(--muted)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.stats{padding-top:0}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.stat strong{display:block;font-size:2rem;letter-spacing:-.04em}
-.section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:22px}
-.section-head p{max-width:680px;margin-bottom:0}
-.filters{display:grid;grid-template-columns:1.4fr repeat(3,1fr) auto;gap:10px;margin-bottom:18px}
-.field{background:#fff;border:2px dashed var(--line);border-radius:14px;padding:10px 12px}
-.field label{display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#888;margin-bottom:6px}
-.field input,.field select{width:100%;border:0;background:#f7f7f7;padding:9px;border-radius:8px;color:#777}
-.animals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.animal-card{display:flex;flex-direction:column;gap:13px;min-height:260px}
-.animal-top{display:flex;justify-content:space-between;gap:10px}
-.animal-top h3{font-size:1.35rem}
-.chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{border:1px dashed var(--line);border-radius:999px;padding:5px 8px;color:#777;font-size:.75rem}
-.card-actions{display:flex;gap:8px;margin-top:auto}
-.card-actions .btn{flex:1}
-.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.step-num{width:36px;height:36px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;font-weight:800;margin-bottom:14px}
-.help-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.help-card{min-height:230px;display:flex;flex-direction:column}
-.help-card .btn{margin-top:auto;align-self:flex-start}
-.lost-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}
-.lost-card{min-height:310px;display:flex;flex-direction:column;justify-content:space-between}
-/* .map-card{min-height:310px;display:grid;place-items:center;text-align:center} */
-.map-card {
-  display: block;
-  min-height: 0;
-  padding: 24px;
-  text-align: left;
-}
-
-.map-intro {
-  margin-bottom: 16px;
-}
-
-.map-intro h3 {
-  margin: 10px 0 8px;
-}
-
-#occurrenceMap {
-  width: 100%;
-  height: 360px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #eef5ef;
-}
-
-/* Estilo das dicas e das fotos dos gatos no mapa */
-.cat-tooltip {
-  white-space: normal;
-  max-width: 260px;
-}
-
-.cat-tooltip img,
-.leaflet-popup-content img {
-  display: block;
-  width: 100%;
-  height: 120px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.map-note {
-  margin: 12px 0 0;
-  font-size: 0.9rem;
-}
-
-@media (max-width: 620px) {
-  .map-card {
-    padding: 16px;
-  }
-
-  #occurrenceMap {
-    height: 300px;
-  }
-}
-
-.cta-card{padding:34px;display:flex;justify-content:space-between;align-items:center;gap:20px}
-footer{padding:20px 0 32px}
-.footer-card{display:flex;justify-content:space-between;align-items:center;gap:20px}
-@media(max-width:950px){
- nav{display:none}
- .stats-grid{grid-template-columns:repeat(2,1fr)}
- .filters{grid-template-columns:1fr 1fr}
- .animals-grid{grid-template-columns:repeat(2,1fr)}
- .steps{grid-template-columns:repeat(2,1fr)}
- .help-grid{grid-template-columns:1fr 1fr}
- .lost-grid{grid-template-columns:1fr}
-}
-@media(max-width:620px){
- .stats-grid,.animals-grid,.steps,.help-grid,.filters{grid-template-columns:1fr}
- .section-head,.cta-card,.footer-card{align-items:flex-start;flex-direction:column}
- h1{font-size:3rem}
-}
-
-/* Complementos da integração AdoCat; a estrutura do wireframe foi preservada */
-.logo-box{border-style:solid;border-color:#b7c8bd;color:#315b47;font-size:1.4rem;background:#eef5ef}
-.btn{transition:background .15s,border-color .15s,transform .15s}
-.btn:not(:disabled):hover{background:#eef5ef;border-color:#749f84;transform:translateY(-1px)}
-.btn:disabled{cursor:not-allowed;opacity:.58;background:#ececec}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #71967e;outline-offset:2px}
-.animal-card{min-height:245px}
-.animal-card .status-tag{font-size:.75rem;border-radius:999px;padding:5px 8px;background:#e6f3e6;color:#2d5d3a}
-.animal-card .status-tag.other{background:#f2eeee;color:#675b55}
-.animal-card .status-tag.adopted{background:#f1e8d5;color:#70562d}
-.animal-card .card-actions{margin-top:auto}
-.animal-card .btn{padding:10px 12px}
-.empty-state{text-align:center;padding:32px}
-.empty-state[hidden]{display:none}
-#resultsText{min-height:24px;margin-bottom:16px}
-#animalsGrid[aria-busy="true"]{opacity:.65}
-dialog{border:2px dashed var(--line);border-radius:20px;max-width:min(520px,calc(100% - 28px));width:100%;box-shadow:0 22px 70px #0003;padding:28px;color:var(--text)}
-dialog::backdrop{background:rgba(0,0,0,.5)}
-.dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.dialog-header h2{font-size:1.7rem}
-.modal-close{border:0;background:transparent;font-size:1.8rem;cursor:pointer;line-height:1}
-.dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
-.notice{padding:12px 14px;background:#f3f3f3;border-radius:12px;color:#555}
-#copyFeedback{font-size:.85rem;min-height:22px}
-@media(max-width:950px){header .nav{flex-wrap:wrap;padding-block:12px}header nav{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem;order:3;width:100%}}
-@media(max-width:620px){.hero-card{padding:24px}.field{min-width:0}}
-/* Ajustes visuais iniciais da página AdoCat */
-:root {
-  --bg: #f7f8f5;
-  --card: #ffffff;
-  --line: #d9e2da;
-  --line2: #e8ece8;
-  --text: #28352d;
-  --muted: #68756c;
-}
-
-.card,
-.btn,
-.logo-box,
-.field,
-.chip,
-.step-num {
-  border-style: solid;
-}
-
-.card {
-  border-width: 1px;
-  box-shadow: 0 6px 20px rgba(35, 60, 43, 0.06);
-}
-
-.hero-card {
-  background: linear-gradient(135deg, #eef6ee, #ffffff);
-}
-
-.btn {
-  border-color: #b7cbb9;
-  color: #315b3d;
-  cursor: pointer;
-}
-
-.btn:not(:disabled):hover {
-  background: #e7f1e8;
-  border-color: #729579;
-}
-
-.eyebrow {
-  color: #42674a;
-  border-color: #d5e2d6;
-}
-
-/* Banner principal */
-.hero-card {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 32px;
-  align-items: center;
-  padding: clamp(24px, 5vw, 56px);
-  overflow: hidden;
-  background: linear-gradient(135deg, #eef6ee, #ffffff);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-description {
-  max-width: 560px;
-  font-size: 1.08rem;
-}
-
-.hero-image {
-  min-height: 330px;
-  overflow: hidden;
-  border-radius: 24px;
-  background: #e5ece5;
-}
-
-.hero-image img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 330px;
-  object-fit: cover;
-}
-
-.hero-card .actions a:first-child {
-  background: #315b47;
-  border-color: #315b47;
-  color: #fff;
-}
-
-.hero-card .actions a:first-child:hover {
-  background: #254735;
-  border-color: #254735;
-}
-
-@media (max-width: 720px) {
-  .hero-card {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-image,
-  .hero-image img {
-    min-height: 230px;
-  }
-}
-
-/* Cartões dos gatos */
-.animal-card {
-  padding: 22px;
-  border: 1px solid #e1e9e1;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(35, 60, 43, 0.07);
-  transition: transform 180ms ease, box-shadow 180ms ease;
-}
-
-.animal-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 32px rgba(35, 60, 43, 0.12);
-}
-
-.animal-top {
-  align-items: flex-start;
-}
-
-.animal-top h3 {
-  color: #293c30;
-}
-
-.animal-card .status-tag {
-  font-weight: 700;
-}
-
-.animal-card .status-tag:not(.other):not(.adopted) {
-  background: #e7f3e8;
-  color: #315b3d;
-}
-
-.animal-card .status-tag.other {
-  background: #f1f2ed;
-  color: #68756c;
-}
-
-.animal-card .status-tag.adopted {
-  background: #f7efdf;
-  color: #765c2e;
-}
-
-.animal-card .chip {
-  background: #f7f9f6;
-  border-color: #e1e9e1;
-  color: #5e6d61;
-}
-
-.animal-card .card-actions .btn:first-child {
-  background: #fff;
-  color: #315b47;
-}
-
-.animal-card .card-actions .btn:last-child {
-  background: #315b47;
-  border-color: #315b47;
-  color: #fff;
-}
-
-.animal-card .card-actions .btn:last-child:hover {
-  background: #254735;
-  border-color: #254735;
-}
-
-/* Campos de busca e filtros */
-.field {
-  border: 1px solid #e1e9e1;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(35, 60, 43, 0.04);
-}
-
-.field label {
-  color: #42674a;
-}
-
-.field input,
-.field select {
-  background: #f7f9f6;
-  color: #34443a;
-}
-
-.field input:focus,
-.field select:focus {
-  outline: 2px solid #71967e;
-  outline-offset: 2px;
-}
-
-/* Respeita quem prefere menos movimento */
-@media (prefers-reduced-motion: reduce) {
-  .animal-card {
-    transition: none;
-  }
-
-  .animal-card:hover {
-    transform: none;
-  }
-}
-
-/* Navegação e acabamento visual */
-header {
-  box-shadow: 0 4px 18px rgba(35, 60, 43, 0.06);
-}
-
-nav a {
-  padding: 8px 10px;
-  border-radius: 999px;
-  transition: color 160ms ease, background 160ms ease;
-}
-
-nav a:hover {
-  color: #315b47;
-  background: #eef5ef;
-}
-
-/* Seções de conteúdo */
-#como-funciona,
-#ajudar {
-  background: #f0f5f0;
-}
-
-.section-head {
-  margin-bottom: 26px;
-}
-
-.section-head .eyebrow {
-  margin-bottom: 6px;
-}
-
-/* Etapas da adoção */
-.step-num {
-  background: #315b47;
-  border-color: #315b47;
-  color: #fff;
-}
-
-/* Cartões de ajuda */
-.help-card {
-  border-color: #dce7dc;
-  transition: transform 180ms ease, box-shadow 180ms ease;
-}
-
-.help-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(35, 60, 43, 0.1);
-}
-
-.help-card h3 {
-  color: #315b47;
-}
-
-/* Chamada final */
-.cta-card {
-  background: #315b47;
-  border-color: #315b47;
-  color: #fff;
-}
-
-.cta-card h2 {
-  color: #fff;
-}
-
-.cta-card .muted {
-  color: #e2eee4;
-}
-
-.cta-card .btn {
-  background: #fff;
-  border-color: #fff;
-  color: #315b47;
-  white-space: nowrap;
-}
-
-.cta-card .btn:hover {
-  background: #eaf2eb;
-  border-color: #eaf2eb;
-}
-
-/* Animações discretas; desativadas para quem prefere menos movimento */
-@media (prefers-reduced-motion: reduce) {
-  nav a,
-  .help-card {
-    transition: none;
-  }
-
-  .help-card:hover {
-    transform: none;
-  }
-}
-
-/* Área de resultados e mensagens da adoção */
-#resultsText {
-  color: #53665a;
-  font-weight: 700;
-  margin-top: 20px;
-}
-
-.empty-state {
-  max-width: 760px;
-  margin: 0 auto;
-  border: 1px solid #eadfcb;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #fffaf0, #ffffff);
-  box-shadow: 0 8px 24px rgba(70, 57, 30, 0.06);
-}
-
-.empty-state h3 {
-  color: #5e4b2e;
-  font-size: 1.35rem;
-}
-
-.empty-state p {
-  max-width: 540px;
-  margin: 8px auto 0;
-  color: #716c60;
-}
-
-#retryLoad {
-  margin-top: 18px;
-  border-style: solid;
-  border-color: #315b47;
-  background: #315b47;
-  color: #fff;
-}
-
-#retryLoad:hover {
-  background: #254735;
-  border-color: #254735;
-}
-
-#animalsGrid[aria-busy="true"] {
-  opacity: 0.55;
-  transition: opacity 180ms ease;
-}
-
-@media (max-width: 620px) {
-  .empty-state {
-    padding: 24px 18px;
-  }
-}
-
-/* Destaque para as áreas de adoção e localização */
-#adocao,
-#perdidos {
-  background: #f7f9f6;
-}
-
-.section-head h2 {
-  color: #293c30;
-}
-
-.section-head p {
-  line-height: 1.7;
-}
-
-/* Filtros */
-.filters .field {
-  border-radius: 16px;
-}
-
-.filters .field input,
-.filters .field select {
-  min-height: 42px;
-}
-
-.filters > .btn {
-  align-self: end;
-  min-height: 62px;
-  border: 1px solid #315b47;
-  background: #315b47;
-  color: #fff;
-}
-
-.filters > .btn:hover {
-  background: #254735;
-  border-color: #254735;
-}
-
-/* Botão para limpar os filtros */
-#clearFilters {
-  border: 1px solid #cbd9cc;
-  background: #fff;
-  color: #315b47;
-}
-
-#clearFilters:hover {
-  background: #eef5ef;
-}
-
-/* Em telas pequenas, os controles ocupam toda a largura */
-@media (max-width: 620px) {
-  .filters > .btn {
-    min-height: 48px;
-  }
-
-  #clearFilters {
-    width: 100%;
-  }
-}
-
-/* Destaque para o botão de envio de relato */
-  .report-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 20px;
-    border: 2px solid #315b47;
-    border-radius: 12px;
-    background: #315b47;
-    color: #fff;
-    font-weight: 800;
-    box-shadow: 0 6px 16px rgba(49, 91, 71, 0.22);
-    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
-  }
-
-  .report-btn:hover {
-    background: #254735;
-    border-color: #254735;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 9px 20px rgba(49, 91, 71, 0.28);
-  }
-
-  .report-btn:focus-visible {
-    outline: 3px solid #71967e;
-    outline-offset: 3px;
-  }
-
-  @media (max-width: 620px) {
-    .report-btn {
-      width: 100%;
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AdoCat | Adoção responsável de gatos</title>
+  <meta name="description" content="AdoCat: encontre gatos disponíveis para adoção responsável. Consulte os animais cadastrados na plataforma." />
+
+  <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""
+  >
+
+
+
+  <style>
+    :root{
+      --bg:#f4f4f4;
+      --card:#fff;
+      --line:#bdbdbd;
+      --line2:#dedede;
+      --text:#333;
+      --muted:#777;
+      --max:1180px;
     }
-  }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+    a{text-decoration:none;color:inherit}
+    button,input,select{font:inherit}
+    .container{width:min(var(--max),calc(100% - 32px));margin:auto}
+    header{border-bottom:1px solid var(--line2);background:#fff;position:sticky;top:0;z-index:20}
+    .nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:10px}
+    .logo-box{width:42px;height:42px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;color:#888}
+    nav{display:flex;gap:24px;font-weight:700;color:#666;font-size:.92rem}
+    .btn{border:2px dashed var(--line);background:#fff;border-radius:10px;padding:11px 16px;font-weight:800;color:#555}
+    section{padding:34px 0}
+    .card{background:var(--card);border:2px dashed var(--line);border-radius:18px;padding:22px}
+    .hero-card{padding:36px;min-height:360px;display:flex;align-items:center}
+    .eyebrow{font-size:.75rem;font-weight:800;text-transform:uppercase;color:#888;border:1px solid var(--line2);padding:6px 9px;border-radius:999px;display:inline-block}
+    h1{font-size:clamp(2.7rem,6vw,5rem);line-height:.98;letter-spacing:-.05em;margin:18px 0;max-width:800px}
+    h2{font-size:clamp(2rem,4vw,3.1rem);line-height:1;letter-spacing:-.04em;margin:12px 0 8px}
+    h3{margin:0 0 8px}
+    p{margin-top:0}
+    .muted{color:var(--muted)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+    .stats{padding-top:0}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .stat strong{display:block;font-size:2rem;letter-spacing:-.04em}
+    .section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:22px}
+    .section-head p{max-width:680px;margin-bottom:0}
+    .filters{display:grid;grid-template-columns:1.4fr repeat(3,1fr) auto;gap:10px;margin-bottom:18px}
+    .field{background:#fff;border:2px dashed var(--line);border-radius:14px;padding:10px 12px}
+    .field label{display:block;font-size:.72rem;font-weight:800;text-transform:uppercase;color:#888;margin-bottom:6px}
+    .field input,.field select{width:100%;border:0;background:#f7f7f7;padding:9px;border-radius:8px;color:#777}
+    .animals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .animal-card{display:flex;flex-direction:column;gap:13px;min-height:260px}
+    .animal-top{display:flex;justify-content:space-between;gap:10px}
+    .animal-top h3{font-size:1.35rem}
+    .chips{display:flex;gap:7px;flex-wrap:wrap}
+    .chip{border:1px dashed var(--line);border-radius:999px;padding:5px 8px;color:#777;font-size:.75rem}
+    .card-actions{display:flex;gap:8px;margin-top:auto}
+    .card-actions .btn{flex:1}
+    .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+    .step-num{width:36px;height:36px;border:2px dashed var(--line);border-radius:10px;display:grid;place-items:center;font-weight:800;margin-bottom:14px}
+    .help-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .help-card{min-height:230px;display:flex;flex-direction:column}
+    .help-card .btn{margin-top:auto;align-self:flex-start}
+    .help-accordion{width:100%}
+    .help-accordion summary{list-style:none;display:block;cursor:pointer;padding:2px 0 8px}
+    .help-accordion summary::-webkit-details-marker{display:none}
+    .help-accordion summary strong{display:block;font-size:1.12rem;color:var(--text)}
+    .help-accordion summary small{display:block;color:var(--muted);line-height:1.45;margin-top:5px}
+    .accordion-arrow{display:none}.help-accordion summary::after{content:"Ver mais  ﹀";display:inline-flex;align-items:center;justify-content:center;margin-top:15px;padding:9px 17px;border:1px solid var(--line);border-radius:999px;background:#f4f8f5;color:#2e7658;font-weight:750;font-size:.88rem;transition:background .2s ease}.help-accordion[open] summary::after{content:"Ver menos  ︿";background:#eaf3ed}
+    .help-accordion[open] .accordion-arrow{transform:rotate(180deg)}
+    .help-accordion-content{padding-top:10px}
+    .lost-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}
+    .lost-card{min-height:310px;display:flex;flex-direction:column;justify-content:space-between}
+    /* .map-card{min-height:310px;display:grid;place-items:center;text-align:center} */
+    .map-card {
+      display: block;
+      min-height: 0;
+      padding: 24px;
+      text-align: left;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
+    .map-intro {
+      margin-bottom: 16px;
+    }
+
+    .map-intro h3 {
+      margin: 10px 0 8px;
+    }
+
+    @media (max-width: 620px) {
+      .map-card {
+        padding: 16px;
+      }
+    }
+
+    .cta-card{padding:34px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+    footer{padding:20px 0 32px}
+    .footer-card{display:flex;justify-content:space-between;align-items:center;gap:20px}
+    @media(max-width:950px){
+      nav{display:none}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .filters{grid-template-columns:1fr 1fr}
+      .animals-grid{grid-template-columns:repeat(2,1fr)}
+      .steps{grid-template-columns:repeat(2,1fr)}
+      .help-grid{grid-template-columns:1fr 1fr}
+      .lost-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:620px){
+      .stats-grid,.animals-grid,.steps,.help-grid,.filters{grid-template-columns:1fr}
+      .section-head,.cta-card,.footer-card{align-items:flex-start;flex-direction:column}
+      h1{font-size:3rem}
+    }
+
+    /* Complementos da integração AdoCat; a estrutura do wireframe foi preservada */
+    .logo-box{border-style:solid;border-color:#b7c8bd;color:#315b47;font-size:1.4rem;background:#eef5ef}
+    .btn{transition:background .15s,border-color .15s,transform .15s}
+    .btn:not(:disabled):hover{background:#eef5ef;border-color:#749f84;transform:translateY(-1px)}
+    .btn:disabled{cursor:not-allowed;opacity:.58;background:#ececec}
+    button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #71967e;outline-offset:2px}
+    .animal-card{min-height:245px}
+    .animal-card .status-tag{font-size:.75rem;border-radius:999px;padding:5px 8px;background:#e6f3e6;color:#2d5d3a}
+    .animal-card .status-tag.other{background:#f2eeee;color:#675b55}
+    .animal-card .status-tag.adopted{background:#f1e8d5;color:#70562d}
+    .animal-card .card-actions{margin-top:auto}
+    .animal-card .btn{padding:10px 12px}
+    .empty-state{text-align:center;padding:32px}
+    .empty-state[hidden]{display:none}
+    #resultsText{min-height:24px;margin-bottom:16px}
+    #animalsGrid[aria-busy="true"]{opacity:.65}
+    dialog{border:2px dashed var(--line);border-radius:20px;max-width:min(520px,calc(100% - 28px));width:100%;box-shadow:0 22px 70px #0003;padding:28px;color:var(--text)}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+    .dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .dialog-header h2{font-size:1.7rem}
+    .modal-close{border:0;background:transparent;font-size:1.8rem;cursor:pointer;line-height:1}
+    .dialog-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+    .notice{padding:12px 14px;background:#f3f3f3;border-radius:12px;color:#555}
+    #copyFeedback{font-size:.85rem;min-height:22px}
+    @media(max-width:950px){header .nav{flex-wrap:wrap;padding-block:12px}header nav{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem;order:3;width:100%}}
+    @media(max-width:620px){.hero-card{padding:24px}.field{min-width:0}}
+    /* Ajustes visuais iniciais da página AdoCat */
+    :root {
+      --bg: #f7f8f5;
+      --card: #ffffff;
+      --line: #d9e2da;
+      --line2: #e8ece8;
+      --text: #28352d;
+      --muted: #68756c;
+    }
+
+    .card,
+    .btn,
+    .logo-box,
+    .field,
+    .chip,
+    .step-num {
+      border-style: solid;
+    }
+
+    .card {
+      border-width: 1px;
+      box-shadow: 0 6px 20px rgba(35, 60, 43, 0.06);
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #eef6ee, #ffffff);
+    }
+
+    .btn {
+      border-color: #b7cbb9;
+      color: #315b3d;
+      cursor: pointer;
+    }
+
+    .btn:not(:disabled):hover {
+      background: #e7f1e8;
+      border-color: #729579;
+    }
+
+    .eyebrow {
+      color: #42674a;
+      border-color: #d5e2d6;
+    }
+
+    /* Banner principal */
+    .hero-card {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 32px;
+      align-items: center;
+      padding: clamp(24px, 5vw, 56px);
+      overflow: hidden;
+      background: linear-gradient(135deg, #eef6ee, #ffffff);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-description {
+      max-width: 560px;
+      font-size: 1.08rem;
+    }
+
+    .hero-image {
+      min-height: 330px;
+      overflow: hidden;
+      border-radius: 24px;
+      background: #e5ece5;
+    }
+
+    .hero-image img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 330px;
+      object-fit: cover;
+    }
+
+    .hero-card .actions a:first-child {
+      background: #315b47;
+      border-color: #315b47;
+      color: #fff;
+    }
+
+    .hero-card .actions a:first-child:hover {
+      background: #254735;
+      border-color: #254735;
+    }
+
+    @media (max-width: 720px) {
+      .hero-card {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-image,
+      .hero-image img {
+        min-height: 230px;
+      }
+    }
+
+    /* Cartões dos gatos */
+    .animal-card {
+      padding: 22px;
+      border: 1px solid #e1e9e1;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(35, 60, 43, 0.07);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .animal-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(35, 60, 43, 0.12);
+    }
+
+    .animal-top {
+      align-items: flex-start;
+    }
+
+    .animal-top h3 {
+      color: #293c30;
+    }
+
+    .animal-card .status-tag {
+      font-weight: 700;
+    }
+
+    .animal-card .status-tag:not(.other):not(.adopted) {
+      background: #e7f3e8;
+      color: #315b3d;
+    }
+
+    .animal-card .status-tag.other {
+      background: #f1f2ed;
+      color: #68756c;
+    }
+
+    .animal-card .status-tag.adopted {
+      background: #f7efdf;
+      color: #765c2e;
+    }
+
+    .animal-card .chip {
+      background: #f7f9f6;
+      border-color: #e1e9e1;
+      color: #5e6d61;
+    }
+
+    .animal-card .card-actions .btn:first-child {
+      background: #fff;
+      color: #315b47;
+    }
+
+    .animal-card .card-actions .btn:last-child {
+      background: #315b47;
+      border-color: #315b47;
+      color: #fff;
+    }
+
+    .animal-card .card-actions .btn:last-child:hover {
+      background: #254735;
+      border-color: #254735;
+    }
+
+    /* Campos de busca e filtros */
+    .field {
+      border: 1px solid #e1e9e1;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(35, 60, 43, 0.04);
+    }
+
+    .field label {
+      color: #42674a;
+    }
+
+    .field input,
+    .field select {
+      background: #f7f9f6;
+      color: #34443a;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid #71967e;
+      outline-offset: 2px;
+    }
+
+    /* Respeita quem prefere menos movimento */
+    @media (prefers-reduced-motion: reduce) {
+      .animal-card {
+        transition: none;
+      }
+
+      .animal-card:hover {
+        transform: none;
+      }
+    }
+
+    /* Navegação e acabamento visual */
+    header {
+      box-shadow: 0 4px 18px rgba(35, 60, 43, 0.06);
+    }
+
+    nav a {
+      padding: 8px 10px;
+      border-radius: 999px;
+      transition: color 160ms ease, background 160ms ease;
+    }
+
+    nav a:hover {
+      color: #315b47;
+      background: #eef5ef;
+    }
+
+    /* Seções de conteúdo */
+    #como-funciona,
+    #ajudar {
+      background: #f0f5f0;
+    }
+
+    .section-head {
+      margin-bottom: 26px;
+    }
+
+    .section-head .eyebrow {
+      margin-bottom: 6px;
+    }
+
+    /* Etapas da adoção */
+    .step-num {
+      background: #315b47;
+      border-color: #315b47;
+      color: #fff;
+    }
+
+    /* Cartões de ajuda */
+    .help-card {
+      border-color: #dce7dc;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .help-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(35, 60, 43, 0.1);
+    }
+
+    .help-card h3 {
+      color: #315b47;
+    }
+
+    /* Chamada final */
+    .cta-card {
+      background: #315b47;
+      border-color: #315b47;
+      color: #fff;
+    }
+
+    .cta-card h2 {
+      color: #fff;
+    }
+
+    .cta-card .muted {
+      color: #e2eee4;
+    }
+
+    .cta-card .btn {
+      background: #fff;
+      border-color: #fff;
+      color: #315b47;
+      white-space: nowrap;
+    }
+
+    .cta-card .btn:hover {
+      background: #eaf2eb;
+      border-color: #eaf2eb;
+    }
+
+    /* Animações discretas; desativadas para quem prefere menos movimento */
+    @media (prefers-reduced-motion: reduce) {
+      nav a,
+      .help-card {
+        transition: none;
+      }
+
+      .help-card:hover {
+        transform: none;
+      }
+    }
+
+    /* Área de resultados e mensagens da adoção */
+    #resultsText {
+      color: #53665a;
+      font-weight: 700;
+      margin-top: 20px;
+    }
+
+    .empty-state {
+      max-width: 760px;
+      margin: 0 auto;
+      border: 1px solid #eadfcb;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #fffaf0, #ffffff);
+      box-shadow: 0 8px 24px rgba(70, 57, 30, 0.06);
+    }
+
+    .empty-state h3 {
+      color: #5e4b2e;
+      font-size: 1.35rem;
+    }
+
+    .empty-state p {
+      max-width: 540px;
+      margin: 8px auto 0;
+      color: #716c60;
+    }
+
+    #retryLoad {
+      margin-top: 18px;
+      border-style: solid;
+      border-color: #315b47;
+      background: #315b47;
+      color: #fff;
+    }
+
+    #retryLoad:hover {
+      background: #254735;
+      border-color: #254735;
+    }
+
+    #animalsGrid[aria-busy="true"] {
+      opacity: 0.55;
+      transition: opacity 180ms ease;
+    }
+
+    @media (max-width: 620px) {
+      .empty-state {
+        padding: 24px 18px;
+      }
+    }
+
+    /* Destaque para as áreas de adoção e localização */
+    #adocao,
+    #perdidos {
+      background: #f7f9f6;
+    }
+
+    .section-head h2 {
+      color: #293c30;
+    }
+
+    .section-head p {
+      line-height: 1.7;
+    }
+
+    /* Filtros */
+    .filters .field {
+      border-radius: 16px;
+    }
+
+    .filters .field input,
+    .filters .field select {
+      min-height: 42px;
+    }
+
+    .filters > .btn {
+      align-self: end;
+      min-height: 62px;
+      border: 1px solid #315b47;
+      background: #315b47;
+      color: #fff;
+    }
+
+    .filters > .btn:hover {
+      background: #254735;
+      border-color: #254735;
+    }
+
+    /* Botão para limpar os filtros */
+    #clearFilters {
+      border: 1px solid #cbd9cc;
+      background: #fff;
+      color: #315b47;
+    }
+
+    #clearFilters:hover {
+      background: #eef5ef;
+    }
+
+    /* Em telas pequenas, os controles ocupam toda a largura */
+    @media (max-width: 620px) {
+      .filters > .btn {
+        min-height: 48px;
+      }
+
+      #clearFilters {
+        width: 100%;
+      }
+    }
+
+    /* Destaque para o botão de envio de relato */
     .report-btn {
-      transition: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border: 2px solid #315b47;
+      border-radius: 12px;
+      background: #315b47;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 6px 16px rgba(49, 91, 71, 0.22);
+      transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
     }
 
     .report-btn:hover {
-      transform: none;
+      background: #254735;
+      border-color: #254735;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 9px 20px rgba(49, 91, 71, 0.28);
     }
-  }
+
+    .report-btn:focus-visible {
+      outline: 3px solid #71967e;
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 620px) {
+      .report-btn {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .report-btn {
+        transition: none;
+      }
+
+      .report-btn:hover {
+        transform: none;
+      }
+    }
 
 
-  .stats-heading {
-  margin-bottom: 22px;
-}
+    .stats-heading {
+      margin-bottom: 22px;
+    }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
 
-.stat {
-  position: relative;
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  overflow: hidden;
-}
+    .stat {
+      position: relative;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      overflow: hidden;
+    }
 
-.stat strong {
-  color: #315b47;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
-  line-height: 1.1;
-}
+    .stat strong {
+      color: #315b47;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      line-height: 1.1;
+    }
 
-.stat-icon {
-  font-size: 1.25rem;
-  margin-bottom: 4px;
-}
+    .stat-icon {
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
 
-.stats-charts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 16px;
-}
+    .stats-charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
 
-.chart-card h3 {
-  color: #293c30;
-  margin-bottom: 6px;
-}
+    .chart-card h3 {
+      color: #293c30;
+      margin-bottom: 6px;
+    }
 
-.chart-card > .muted {
-  margin-bottom: 18px;
-  font-size: 0.92rem;
-}
+    .chart-card > .muted {
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+    }
 
-.bar-list {
-  display: grid;
-  gap: 14px;
-}
+    .bar-list {
+      display: grid;
+      gap: 14px;
+    }
 
-.bar-row {
-  display: grid;
-  grid-template-columns: 100px minmax(50px, 1fr) 32px;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.9rem;
-}
+    .bar-row {
+      display: grid;
+      grid-template-columns: 100px minmax(50px, 1fr) 32px;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
 
-.bar-track {
-  height: 12px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #e9efe9;
-}
+    .bar-track {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e9efe9;
+    }
 
-.bar-fill {
-  height: 100%;
-  min-width: 0;
-  border-radius: inherit;
-  background: #4e8a60;
-  transition: width 250ms ease;
-}
+    .bar-fill {
+      height: 100%;
+      min-width: 0;
+      border-radius: inherit;
+      background: #4e8a60;
+      transition: width 250ms ease;
+    }
 
-.bar-row:nth-child(2) .bar-fill {
-  background: #83b88a;
-}
+    .bar-row:nth-child(2) .bar-fill {
+      background: #83b88a;
+    }
 
-.bar-row:nth-child(3) .bar-fill {
-  background: #b5d4b5;
-}
+    .bar-row:nth-child(3) .bar-fill {
+      background: #b5d4b5;
+    }
 
-.bar-value {
-  color: #315b47;
-  font-weight: 800;
-  text-align: right;
-}
+    .bar-value {
+      color: #315b47;
+      font-weight: 800;
+      text-align: right;
+    }
 
-.stats-note {
-  margin: 14px 2px 0;
-  font-size: 0.85rem;
-}
+    .stats-note {
+      margin: 14px 2px 0;
+      font-size: 0.85rem;
+    }
 
-@media (max-width: 950px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+    @media (max-width: 950px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
 
-@media (max-width: 620px) {
-  .stats-grid,
-  .stats-charts {
-    grid-template-columns: 1fr;
-  }
+    @media (max-width: 620px) {
+      .stats-grid,
+      .stats-charts {
+        grid-template-columns: 1fr;
+      }
 
-  .stat {
-    min-height: 125px;
-  }
+      .stat {
+        min-height: 125px;
+      }
 
-  .bar-row {
-    grid-template-columns: 90px minmax(40px, 1fr) 28px;
-    gap: 8px;
-  }
-}
+      .bar-row {
+        grid-template-columns: 90px minmax(40px, 1fr) 28px;
+        gap: 8px;
+      }
+    }
 
-@media (prefers-reduced-motion: reduce) {
-  .bar-fill {
-    transition: none;
-  }
-}
+    @media (prefers-reduced-motion: reduce) {
+      .bar-fill {
+        transition: none;
+      }
+    }
 
-.support-links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 22px;
-}
+    .support-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
 
-.support-link {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid #d9e2da;
-  border-radius: 16px;
-  background: #fff;
-  color: #28352d;
-  box-shadow: 0 6px 20px rgba(35, 60, 43, 0.05);
-}
+    .support-link {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid #d9e2da;
+      border-radius: 16px;
+      background: #fff;
+      color: #28352d;
+      box-shadow: 0 6px 20px rgba(35, 60, 43, 0.05);
+    }
 
-a.support-link {
-  text-decoration: none;
-  transition: transform 160ms ease, box-shadow 160ms ease;
-}
+    a.support-link {
+      text-decoration: none;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
 
-a.support-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(35, 60, 43, 0.1);
-}
+    a.support-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(35, 60, 43, 0.1);
+    }
 
-.support-icon {
-  flex: 0 0 46px;
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #eef5ef;
-  color: #315b47;
-  font-size: 1.7rem;
-  font-weight: 700;
-}
+    .support-icon {
+      flex: 0 0 46px;
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #eef5ef;
+      color: #315b47;
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
 
-.support-copy {
-  min-width: 0;
-  display: grid;
-  gap: 3px;
-}
+    .support-copy {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
 
-.support-copy strong {
-  overflow-wrap: anywhere;
-  font-size: 1rem;
-}
+    .support-copy strong {
+      overflow-wrap: anywhere;
+      font-size: 1rem;
+    }
 
-.support-copy > span {
-  color: #68756c;
-  font-size: 0.9rem;
-  overflow-wrap: anywhere;
-}
+    .support-copy > span {
+      color: #68756c;
+      font-size: 0.9rem;
+      overflow-wrap: anywhere;
+    }
 
-.support-arrow {
-  margin-left: auto;
-  color: #315b47;
-  font-size: 1.2rem;
-}
+    .support-arrow {
+      margin-left: auto;
+      color: #315b47;
+      font-size: 1.2rem;
+    }
 
-.pix-card {
-  flex-wrap: wrap;
-}
+    .pix-card {
+      flex-wrap: wrap;
+    }
 
-.pix-copy-btn {
-  margin-left: auto;
-  padding: 9px 12px;
-  border: 1px solid #315b47;
-  border-radius: 10px;
-  background: #315b47;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
+    .pix-copy-btn {
+      margin-left: auto;
+      padding: 9px 12px;
+      border: 1px solid #315b47;
+      border-radius: 10px;
+      background: #315b47;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-.pix-copy-btn:hover {
-  background: #254735;
-}
+    .pix-copy-btn:hover {
+      background: #254735;
+    }
 
-.pix-copy-btn:focus-visible,
-.support-link:focus-visible {
-  outline: 3px solid #71967e;
-  outline-offset: 3px;
-}
+    .pix-copy-btn:focus-visible,
+    .support-link:focus-visible {
+      outline: 3px solid #71967e;
+      outline-offset: 3px;
+    }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-@media (max-width: 620px) {
-  .support-links {
-    grid-template-columns: 1fr;
-  }
+    @media (max-width: 620px) {
+      .support-links {
+        grid-template-columns: 1fr;
+      }
 
-  .pix-copy-btn {
-    width: 100%;
-    margin-left: 60px;
-  }
-}
+      .pix-copy-btn {
+        width: 100%;
+        margin-left: 60px;
+      }
+    }
 
-@media (prefers-reduced-motion: reduce) {
-  a.support-link {
-    transition: none;
-  }
+    @media (prefers-reduced-motion: reduce) {
+      a.support-link {
+        transition: none;
+      }
 
-  a.support-link:hover {
-    transform: none;
-  }
-}
+      a.support-link:hover {
+        transform: none;
+      }
+    }
 
 
 
-</style>
+  </style>
 </head>
 
 
@@ -889,143 +864,143 @@ a.support-link:hover {
   <section id="inicio">
     <div class="container">
       <div class="card hero-card">
-  <div class="hero-content">
-    <span class="eyebrow">Adoção responsável</span>
-    <h1>Um encontro pode mudar duas vidas.</h1>
-    <p class="muted hero-description">
-      Conheça os gatos cadastrados no AdoCat, descubra suas histórias
-      e encontre um novo companheiro.
-    </p>
-    <div class="actions">
-      <a class="btn" href="#adocao">Encontrar um amigo →</a>
-      <a class="btn" href="#ajudar">Outras formas de ajudar</a>
-    </div>
-  </div>
+        <div class="hero-content">
+          <span class="eyebrow">Adoção responsável</span>
+          <h1>Um encontro pode mudar duas vidas.</h1>
+          <p class="muted hero-description">
+            Conheça os gatos cadastrados no AdoCat, descubra suas histórias
+            e encontre um novo companheiro.
+          </p>
+          <div class="actions">
+            <a class="btn" href="#adocao">Encontrar um amigo →</a>
+            <a class="btn" href="#ajudar">Outras formas de ajudar</a>
+          </div>
+        </div>
 
-  <div class="hero-image">
-    <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável">
-  </div>
-</div>
+        <div class="hero-image">
+          <img src="images/hero-gato.jpg" alt="Gato à espera de um lar responsável">
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- INDICADORES: valores carregados da API, sem números fictícios -->
-<!--   <section class="stats" aria-label="Indicadores gerais">
-    <div class="container stats-grid">
-      <div class="card stat"><strong id="countTotal" aria-live="polite">—</strong><span class="muted">gatos cadastrados</span></div>
-      <div class="card stat"><strong id="countAvailable" aria-live="polite">—</strong><span class="muted">disponíveis para adoção</span></div>
-      <div class="card stat"><strong id="countAdopted" aria-live="polite">—</strong><span class="muted">com status adotado</span></div>
-      <div class="card stat"><strong id="countPercent" aria-live="polite">—</strong><span class="muted">dos gatos disponíveis</span></div>
-    </div>
-  </section> -->
+  <!--   <section class="stats" aria-label="Indicadores gerais">
+      <div class="container stats-grid">
+        <div class="card stat"><strong id="countTotal" aria-live="polite">—</strong><span class="muted">gatos cadastrados</span></div>
+        <div class="card stat"><strong id="countAvailable" aria-live="polite">—</strong><span class="muted">disponíveis para adoção</span></div>
+        <div class="card stat"><strong id="countAdopted" aria-live="polite">—</strong><span class="muted">com status adotado</span></div>
+        <div class="card stat"><strong id="countPercent" aria-live="polite">—</strong><span class="muted">dos gatos disponíveis</span></div>
+      </div>
+    </section> -->
 
   <!-- Redes sociais e formas de apoiar -->
-<section id="apoio" aria-label="Redes sociais e formas de apoiar o AdoCat">
-  <div class="container">
-    <div class="support-links">
+  <section id="apoio" aria-label="Redes sociais e formas de apoiar o AdoCat">
+    <div class="container">
+      <div class="support-links">
 
-      <a
-        class="support-link"
-        href="https://www.instagram.com/adocatreserva/"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Abrir o Instagram do AdoCat em uma nova aba">
+        <a
+                class="support-link"
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir o Instagram do AdoCat em uma nova aba">
 
-        <span class="support-icon" aria-hidden="true">◎</span>
+          <span class="support-icon" aria-hidden="true">◎</span>
 
-        <span class="support-copy">
-          <strong>@adocat.adocao</strong>
+          <span class="support-copy">
+          <strong>@adocat.projeto</strong>
           <span>Instagram</span>
         </span>
 
-        <span class="support-arrow" aria-hidden="true">↗</span>
-      </a>
+          <span class="support-arrow" aria-hidden="true">↗</span>
+        </a>
 
-      <div class="support-link pix-card">
-        <span class="support-icon pix-icon" aria-hidden="true">▦</span>
+        <div class="support-link pix-card">
+          <span class="support-icon pix-icon" aria-hidden="true">▦</span>
 
-        <span class="support-copy">
+          <span class="support-copy">
           <strong>Doar via Pix</strong>
-          <span id="pixKey">adocat.adocao@gmail.com</span>
+          <span id="pixKey">pix@adocat.example</span>
         </span>
 
-        <button
-          class="pix-copy-btn"
-          type="button"
-          id="copyPixKey"
-          aria-describedby="pixFeedback">
-          Copiar chave
-        </button>
+          <button
+                  class="pix-copy-btn"
+                  type="button"
+                  id="copyPixKey"
+                  aria-describedby="pixFeedback">
+            Copiar chave
+          </button>
 
-        <span id="pixFeedback" class="sr-only" aria-live="polite"></span>
+          <span id="pixFeedback" class="sr-only" aria-live="polite"></span>
+        </div>
+
       </div>
-
     </div>
-  </div>
-</section>
+  </section>
 
   <section class="stats" id="indicadores" aria-label="Indicadores do AdoCat">
-  <div class="container">
-    <div class="section-head stats-heading">
-      <div>
-        <span class="eyebrow">AdoCat em números</span>
-        <h2>Um retrato dos gatos cadastrados</h2>
-        <p class="muted">
-          Indicadores calculados a partir dos registros disponíveis no AdoCat.
-        </p>
+    <div class="container">
+      <div class="section-head stats-heading">
+        <div>
+          <span class="eyebrow">AdoCat em números</span>
+          <h2>Um retrato dos gatos cadastrados</h2>
+          <p class="muted">
+            Indicadores calculados a partir dos registros disponíveis no AdoCat.
+          </p>
+        </div>
       </div>
+
+      <div class="stats-grid">
+        <article class="card stat">
+          <span class="stat-icon" aria-hidden="true">🐈</span>
+          <strong id="countTotal" aria-live="polite">—</strong>
+          <span class="muted">gatos cadastrados</span>
+        </article>
+
+        <article class="card stat">
+          <span class="stat-icon" aria-hidden="true">🏠</span>
+          <strong id="countAvailable" aria-live="polite">—</strong>
+          <span class="muted">disponíveis para adoção</span>
+        </article>
+
+        <article class="card stat">
+          <span class="stat-icon" aria-hidden="true">💚</span>
+          <strong id="countAdopted" aria-live="polite">—</strong>
+          <span class="muted">com status adotado</span>
+        </article>
+
+        <article class="card stat">
+          <span class="stat-icon" aria-hidden="true">📊</span>
+          <strong id="countPercent" aria-live="polite">—</strong>
+          <span class="muted">percentual de gatos disponíveis para adoção</span>
+        </article>
+      </div>
+
+      <div class="stats-charts">
+        <article class="card chart-card">
+          <h3>Distribuição por sexo</h3>
+          <p class="muted">Com base nos registros preenchidos.</p>
+          <div id="sexChart" class="bar-list" aria-live="polite">
+            Carregando dados…
+          </div>
+        </article>
+
+        <article class="card chart-card">
+          <h3>Distribuição por faixa etária</h3>
+          <p class="muted">A classificação depende dos dados cadastrados.</p>
+          <div id="ageChart" class="bar-list" aria-live="polite">
+            Carregando dados…
+          </div>
+        </article>
+      </div>
+
+      <p class="stats-note muted">
+        Os totais refletem os registros disponíveis na plataforma. Campos sem
+        informação não são incluídos nas distribuições.
+      </p>
     </div>
-
-    <div class="stats-grid">
-      <article class="card stat">
-        <span class="stat-icon" aria-hidden="true">🐈</span>
-        <strong id="countTotal" aria-live="polite">—</strong>
-        <span class="muted">gatos cadastrados</span>
-      </article>
-
-      <article class="card stat">
-        <span class="stat-icon" aria-hidden="true">🏠</span>
-        <strong id="countAvailable" aria-live="polite">—</strong>
-        <span class="muted">disponíveis para adoção</span>
-      </article>
-
-      <article class="card stat">
-        <span class="stat-icon" aria-hidden="true">💚</span>
-        <strong id="countAdopted" aria-live="polite">—</strong>
-        <span class="muted">com status adotado</span>
-      </article>
-
-      <article class="card stat">
-        <span class="stat-icon" aria-hidden="true">📊</span>
-        <strong id="countPercent" aria-live="polite">—</strong>
-        <span class="muted">indicador atual do AdoCat</span>
-      </article>
-    </div>
-
-    <div class="stats-charts">
-      <article class="card chart-card">
-        <h3>Distribuição por sexo</h3>
-        <p class="muted">Com base nos registros preenchidos.</p>
-        <div id="sexChart" class="bar-list" aria-live="polite">
-          Carregando dados…
-        </div>
-      </article>
-
-      <article class="card chart-card">
-        <h3>Distribuição por faixa etária</h3>
-        <p class="muted">A classificação depende dos dados cadastrados.</p>
-        <div id="ageChart" class="bar-list" aria-live="polite">
-          Carregando dados…
-        </div>
-      </article>
-    </div>
-
-    <p class="stats-note muted">
-      Os totais refletem os registros disponíveis na plataforma. Campos sem
-      informação não são incluídos nas distribuições.
-    </p>
-  </div>
-</section>
+  </section>
 
   <!-- ADOÇÃO: utiliza a API Java já publicada em /api/gatos -->
   <section id="adocao">
@@ -1043,12 +1018,15 @@ a.support-link:hover {
         <div class="field"><label for="searchName">Buscar pelo nome</label><input id="searchName" type="search" placeholder="Ex.: Luna, Bento..." autocomplete="off"></div>
         <div class="field"><label for="filterSex">Sexo</label><select id="filterSex"><option value="">Todos</option><option value="f">Fêmea</option><option value="m">Macho</option></select></div>
         <div class="field"><label for="filterAge">Faixa etária</label><select id="filterAge"><option value="">Todas</option><option value="filhote">Filhotes (até 1 ano)</option><option value="jovem">Jovens (2 a 3 anos)</option><option value="adulto">Adultos (4 anos ou mais)</option></select></div>
+        <div class="field"><label for="filterBreed">Raça</label><input id="filterBreed" type="search" placeholder="Ex.: SRD, Siamês..."></div>
+        <div class="field"><label for="filterColor">Cor / pelagem</label><input id="filterColor" type="search" placeholder="Ex.: preto, tigrado..."></div>
         <div class="field"><label for="filterStatus">Status</label><select id="filterStatus"><option value="">Todos</option><option value="disponivel">Disponíveis</option><option value="adotado">Adotados</option><option value="outro">Outros</option></select></div>
         <button class="btn" type="submit">Filtrar</button>
       </form>
 
       <p class="muted" id="resultsText" aria-live="polite">Carregando gatos cadastrados...</p>
       <div class="animals-grid" id="animalsGrid" aria-live="polite" aria-busy="true"></div>
+      <div class="center" style="display:flex;justify-content:center;margin-top:22px"><button class="btn" type="button" id="toggleCats" hidden>Ver mais gatos ↓</button></div>
       <div class="card empty-state" id="emptyState" hidden>
         <h3 id="emptyTitle">Nenhum gato encontrado</h3>
         <p class="muted" id="emptyMessage">Não há gatos cadastrados que correspondam à busca.</p>
@@ -1085,26 +1063,160 @@ a.support-link:hover {
         <div>
           <span class="eyebrow">Faça parte</span>
           <h2>Existem muitas formas de ajudar</h2>
-          <p class="muted">Além da adoção, iniciativas de proteção animal podem contar com doações, lares temporários e trabalho voluntário. Essas inscrições ainda estão em desenvolvimento.</p>
+          <p class="muted">Além da adoção, você pode contribuir com doações, oferecer um lar temporário ou participar como voluntário. Escolha uma opção para ver os detalhes.</p>
         </div>
       </div>
 
       <div class="help-grid">
         <article class="card help-card">
-          <h3>Doação</h3>
-          <p class="muted">Apoie iniciativas de proteção animal com ração, medicamentos ou recursos. O recebimento de doações online ainda não está disponível.</p>
-          
-          
+          <details class="help-accordion">
+            <summary><span><strong>Faça uma doação 💚</strong><small>Ajude o AdoCat com uma contribuição única ou mensal.</small></span><span class="accordion-arrow" aria-hidden="true">⌄</span></summary>
+            <div class="help-accordion-content">
+
+          <form id="donationForm">
+            <div class="field">
+              <label for="donationType">Tipo de contribuição</label>
+              <select id="donationType" required>
+                <option value="UNICA">Doação única</option>
+                <option value="MENSAL">Apoiador mensal</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="donorName">Seu nome</label>
+              <input type="text" id="donorName" placeholder="Digite seu nome" required>
+            </div>
+
+            <div class="field" id="emailField" hidden>
+              <label for="donorEmail">Seu e-mail</label>
+              <input type="email" id="donorEmail" placeholder="Digite seu e-mail">
+            </div>
+
+            <div class="field">
+              <label for="donationValue">Valor (R$)</label>
+              <input type="number" id="donationValue" min="0.01" step="0.01" placeholder="Ex.: 50,00" required>
+            </div>
+
+            <div class="field" id="paymentField">
+              <label for="paymentMethod">Forma de pagamento</label>
+              <select id="paymentMethod" required>
+                <option value="PIX">Pix</option>
+                <option value="CARTAO">Cartão de crédito</option>
+              </select>
+            </div>
+
+            <div id="cardFields" hidden>
+              <h4>Dados fictícios do cartão</h4>
+
+              <div class="field">
+                <label for="cardName">Nome impresso no cartão</label>
+                <input type="text" id="cardName" placeholder="NOME DO TITULAR">
+              </div>
+
+              <div class="field">
+                <label for="cardNumber">Número do cartão</label>
+                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+              </div>
+
+              <div class="field">
+                <label for="cardExpiry">Validade</label>
+                <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5">
+              </div>
+
+              <div class="field">
+                <label for="cardCvv">CVV</label>
+                <input type="text" id="cardCvv" placeholder="123" maxlength="4">
+              </div>
+
+              <small class="muted">Dados exclusivamente fictícios. Não utilize dados reais.</small>
+            </div>
+
+            <p id="donationInfo" class="muted">
+              Escolha o valor e a forma de pagamento para registrar sua doação.
+            </p>
+
+            <button class="btn" id="donationButton" type="submit">
+              Registrar contribuição
+            </button>
+
+            <div id="pixResult" hidden>
+              <h4>Pix de teste</h4>
+              <p>Este código é fictício e não realiza pagamentos.</p>
+              <textarea id="pixCode" readonly rows="3"></textarea>
+              <button class="btn" type="button" id="copyPixButton">Copiar código</button>
+            </div>
+            <div id="paymentConfirmArea" hidden>
+              <p class="muted">Ao confirmar, a contribuição será registrada no painel. Esta versão ainda não processa pagamentos reais.</p>
+              <button class="btn" type="button" id="confirmPaymentButton">Já fiz o Pix</button>
+            </div>
+
+            <p id="donationFeedback" class="muted" role="status" aria-live="polite"></p>
+          </form>
+
+          <small class="muted">Ambiente de testes: nenhum valor será cobrado.</small>
+            </div>
+          </details>
         </article>
         <article class="card help-card">
-          <h3>Lar temporário</h3>
-          <p class="muted">Receba um animal por um período e ajude a liberar espaço para novos resgates.</p>
-          <button class="btn" type="button" disabled title="Em desenvolvimento">Em breve</button>
+          <details class="help-accordion">
+            <summary><span><strong>Lar temporário 🏡</strong><small>Ofereça acolhimento até o gato encontrar uma família.</small></span><span class="accordion-arrow" aria-hidden="true">⌄</span></summary>
+            <div class="help-accordion-content">
+          <form class="inscricao-form" data-tipo="LAR_TEMPORARIO">
+            <div class="field"><label>Nome completo *</label><input name="nome" required minlength="3"></div>
+            <div class="field"><label>E-mail *</label><input name="email" type="email" required></div>
+            <div class="field"><label>CPF *</label><input name="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" required></div>
+            <div class="field"><label>Telefone *</label><input name="telefone" required></div>
+            <div class="field"><label>Endereço *</label><input name="endereco" required></div>
+            <div class="field"><label>Cidade *</label><input name="cidade" required></div>
+            <div class="field"><label>Tipo de residência *</label><select name="tipoResidencia" required><option value="">Selecione</option><option>Casa</option><option>Apartamento</option><option>Chácara / sítio</option><option>Outro</option></select></div>
+            <div class="field"><label>Quantos gatos pode acolher? *</label><input name="capacidadeAcolhimento" type="number" min="1" max="20" required></div>
+            <div class="field"><label>Já possui animais?</label><select name="possuiAnimais"><option value="false">Não</option><option value="true">Sim</option></select></div>
+            <div class="field"><label>Disponibilidade *</label><input name="disponibilidade" placeholder="Ex.: imediata, finais de semana" required></div>
+            <div class="field"><label>Experiência com animais</label><textarea name="experiencia" rows="3"></textarea></div>
+            <div class="field"><label>Observações sobre o espaço</label><textarea name="observacoes" rows="3"></textarea></div>
+            <button class="btn" type="submit">Enviar inscrição</button><p class="muted" role="status" aria-live="polite"></p>
+          </form>
+            </div>
+          </details>
         </article>
         <article class="card help-card">
-          <h3>Voluntariado</h3>
-          <p class="muted">Participe com transporte, divulgação, eventos ou outras atividades da organização.</p>
-          <button class="btn" type="button" disabled title="Em desenvolvimento">Em breve</button>
+          <details class="help-accordion">
+            <summary><span><strong>Quero adotar 🐾</strong><small>Conte um pouco sobre você e sua casa para iniciar uma adoção responsável.</small></span><span class="accordion-arrow" aria-hidden="true">⌄</span></summary>
+            <div class="help-accordion-content">
+          <form class="inscricao-form" data-tipo="ADOTANTE">
+            <div class="field"><label>Nome completo *</label><input name="nome" required minlength="3"></div>
+            <div class="field"><label>E-mail *</label><input name="email" type="email" required></div>
+            <div class="field"><label>CPF *</label><input name="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" required></div>
+            <div class="field"><label>Telefone *</label><input name="telefone" required></div>
+            <div class="field"><label>Endereço *</label><input name="endereco" required></div>
+            <div class="field"><label>Cidade *</label><input name="cidade" required></div>
+            <div class="field"><label>Tipo de residência *</label><select name="tipoResidencia" required><option value="">Selecione</option><option>Casa</option><option>Apartamento</option><option>Chácara / sítio</option><option>Outro</option></select></div>
+            <div class="field"><label>Já possui animais?</label><select name="possuiAnimais"><option value="false">Não</option><option value="true">Sim</option></select></div>
+            <div class="field"><label>Experiência com animais</label><textarea name="experiencia" rows="3"></textarea></div>
+            <div class="field"><label>Por que deseja adotar? *</label><textarea name="observacoes" rows="3" required></textarea></div>
+            <button class="btn" type="submit">Enviar interesse em adoção</button><p class="muted" role="status" aria-live="polite"></p>
+          </form>
+            </div>
+          </details>
+        </article>
+        <article class="card help-card">
+          <details class="help-accordion">
+            <summary><span><strong>Voluntariado 💚</strong><small>Ajude com transporte, divulgação, eventos e cuidados.</small></span><span class="accordion-arrow" aria-hidden="true">⌄</span></summary>
+            <div class="help-accordion-content">
+          <form class="inscricao-form" data-tipo="VOLUNTARIO">
+            <div class="field"><label>Nome completo *</label><input name="nome" required minlength="3"></div>
+            <div class="field"><label>E-mail *</label><input name="email" type="email" required></div>
+            <div class="field"><label>CPF *</label><input name="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" required></div>
+            <div class="field"><label>Telefone *</label><input name="telefone" required></div>
+            <div class="field"><label>Endereço *</label><input name="endereco" required></div>
+            <div class="field"><label>Cidade *</label><input name="cidade" required></div>
+            <div class="field"><label>Disponibilidade *</label><input name="disponibilidade" placeholder="Ex.: noites, sábados" required></div>
+            <div class="field"><label>Como gostaria de ajudar? *</label><textarea name="experiencia" rows="3" required placeholder="Transporte, eventos, divulgação, cuidados..."></textarea></div>
+            <div class="field"><label>Observações</label><textarea name="observacoes" rows="2"></textarea></div>
+            <button class="btn" type="submit">Enviar inscrição</button><p class="muted" role="status" aria-live="polite"></p>
+          </form>
+            </div>
+          </details>
         </article>
       </div>
     </div>
@@ -1117,49 +1229,19 @@ a.support-link:hover {
         <article class="card lost-card">
           <div>
             <span class="eyebrow">Perdidos & encontrados</span>
-            <h2>Encontrou um gato perdido?</h2>
-            <!-- <p class="muted">O cadastro de ocorrências e o mapa de animais perdidos estão previstos para uma próxima etapa.</p> -->
-             <p class="muted">
-  Viu um gato em possível situação de abandono em Matão – SP?
-  Envie um relato para avaliação da equipe. 
-</p>
+            <h2>Encontrou um gato precisando de ajuda?</h2>
+            <p class="muted">Envie um relato com a região aproximada e as condições em que o animal foi encontrado. A equipe poderá avaliar o encaminhamento.</p>
           </div>
-          <!-- <button class="btn" type="button" disabled title="Em desenvolvimento">Em breve</button> -->
-           <a
-  class="btn report-btn"
-  
-  href="https://docs.google.com/forms/d/e/1FAIpQLSclGdWKBgb3KJBpSP_cRfkoBf5xcoOoVsgp6UtIYESQs8ljgA/viewform?usp=publish-editor"
-  target="_blank"
-  rel="noopener noreferrer">
-  Relatar um animal
-</a>
+          <a class="btn report-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSclGdWKBgb3KJBpSP_cRfkoBf5xcoOoVsgp6UtIYESQs8ljgA/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">Relatar um animal</a>
         </article>
-
-<!--         <article class="card map-card">
-          <div>
-            <span class="eyebrow">Mapa / localização</span>
-            <h3 style="font-size:1.5rem;margin:16px 0 8px">Mapa de ocorrências em desenvolvimento</h3>
-            <p class="muted">Nesta versão, o AdoCat exibe os gatos cadastrados na API. Fotos e mapa serão integrados futuramente.</p>
+        <article class="card map-card">
+          <div class="map-intro">
+            <span class="eyebrow">Proteção animal</span>
+            <h3>Registro e acompanhamento de resgates</h3>
+            <p class="muted">A equipe administrativa registra a data, a região, a condição inicial do animal e os encaminhamentos realizados. Endereços exatos e dados pessoais não são exibidos publicamente.</p>
           </div>
-        </article> -->
-<article class="card map-card">
-  <div class="map-intro">
-    <span class="eyebrow">Mapa demonstrativo</span>
-    <h3>Gatos encontrados em situação de abandono em Matão–SP</h3>
-    <p class="muted">
-O mapa reúne locais aproximados onde gatos foram identificados em situação de abandono. Os registros são apresentados para apoiar a conscientização e a proteção animal. Por segurança e privacidade, os marcadores não indicam endereços exatos.
-    </p>
-  </div>
-
-  <div
-    id="occurrenceMap"
-    role="region"
-    aria-label="Mapa demonstrativo centrado em Matão, São Paulo">
-  </div>
-
-  <p class="map-note muted">Mapa demonstrativo: marcadores e perfis fictícios; não representam ocorrências reais.</p>
-</article>
-
+          <div class="card-actions"><a class="btn" href="#ajudar">Quero ajudar nos resgates</a></div>
+        </article>
       </div>
     </div>
   </section>
@@ -1197,444 +1279,398 @@ O mapa reúne locais aproximados onde gatos foram identificados em situação de
   <p id="copyFeedback" class="muted" role="status"></p>
 </dialog>
 <script>
-(() => {
-  'use strict';
-  const API_URL = '/api/gatos'; // Mesmo domínio do Spring Boot: sem token ou URL externa.
-  const el = (id) => document.getElementById(id);
-  let allCats = [];
-  let loadingFailed = false;
-  let selectedCat = null;
+  (() => {
+    'use strict';
+    const API_URL = '/api/gatos'; // Mesmo domínio do Spring Boot: sem token ou URL externa.
+    const el = (id) => document.getElementById(id);
+    let allCats = [];
+    let loadingFailed = false;
+    let selectedCat = null;
 
-  function normalize(value) {
-    return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-  }
-  function statusKind(status) {
-    const s = normalize(status);
-    if (s.includes('adotad')) return 'adotado';
-    if (s.includes('disponiv') || s.includes('aguardando') || s.includes('para adocao')) return 'disponivel';
-    return 'outro';
-  }
-  function sexKind(sex) {
-    const s = normalize(sex);
-    return s === 'f' || s.startsWith('fem') ? 'f' : s === 'm' || s.startsWith('mas') ? 'm' : '';
-  }
-  function sexLabel(sex) {
-    const kind = sexKind(sex);
-    return kind === 'f' ? 'Fêmea' : kind === 'm' ? 'Macho' : String(sex || 'Não informado');
-  }
-  function ageGroup(age) {
-    const n = Number(age);
-    if (!Number.isFinite(n) || n < 0) return 'outro';
-    return n <= 1 ? 'filhote' : n <= 3 ? 'jovem' : 'adulto';
-  }
-  function ageLabel(age) {
-    const n = Number(age);
-    if (!Number.isFinite(n) || n < 0) return 'Idade não informada';
-    return n === 0 ? 'Menos de 1 ano' : n === 1 ? '1 ano' : n + ' anos';
-  }
-  function text(tag, content, cls) {
-    const node = document.createElement(tag);
-    node.textContent = String(content ?? '');
-    if (cls) node.className = cls;
-    return node;
-  }
-  function chip(content) { return text('span', content, 'chip'); }
-  function button(label, handler, disabled = false) {
-    const node = text('button', label, 'btn');
-    node.type = 'button';
-    node.disabled = disabled;
-    if (handler) node.addEventListener('click', handler);
-    return node;
-  }
-  function formatCat(cat) {
-    const parts = [
-      `AdoCat - gato #${cat.id ?? 'sem ID'}`,
-      `Nome: ${cat.nome || 'Não informado'}`,
-      `Idade: ${ageLabel(cat.idade)}`,
-      `Sexo: ${sexLabel(cat.sexo)}`,
-      `Raça ou cor: ${cat.racaOuCor || 'Não informado'}`,
-      `Castrado: ${cat.castrado === true ? 'Sim' : cat.castrado === false ? 'Não' : 'Não informado'}`,
-      `Status: ${cat.status || 'Não informado'}`
-    ];
-    return parts.join('\n');
-  }
-  function openCat(cat) {
-    selectedCat = cat;
-    el('dialogTitle').textContent = cat.nome || 'Gato cadastrado';
-    el('dialogInfo').textContent = `Cadastro #${cat.id ?? 'não informado'} · ${ageLabel(cat.idade)}`;
-    const tags = el('dialogTags');
-    tags.replaceChildren(
-      chip(sexLabel(cat.sexo)),
-      chip(cat.racaOuCor || 'Raça/cor não informada'),
-      chip(cat.castrado === true ? 'Castrado' : cat.castrado === false ? 'Não castrado' : 'Castração não informada'),
-      chip(cat.status || 'Status não informado')
-    );
-    el('copyFeedback').textContent = '';
-    el('catDialog').showModal();
-  }
-  function makeCard(cat) {
-    const article = document.createElement('article');
-    article.className = 'card animal-card';
-    const top = text('div', '', 'animal-top');
-    top.append(text('h3', cat.nome || 'Gato sem nome'));
-    const kind = statusKind(cat.status);
-    const tag = text('span', cat.status || 'Status não informado', 'status-tag ' + (kind === 'adotado' ? 'adopted' : kind === 'disponivel' ? '' : 'other'));
-    top.append(tag);
-    const chips = text('div', '', 'chips');
-    chips.append(chip('Gato'), chip(sexLabel(cat.sexo)), chip(ageLabel(cat.idade)));
-    const desc = text('p', `Raça/cor: ${cat.racaOuCor || 'não informada'}. Castração: ${cat.castrado === true ? 'sim' : cat.castrado === false ? 'não' : 'não informada'}.`, 'muted');
-    const extra = text('div', '', 'chips');
-    extra.append(chip('ID: ' + (cat.id ?? '—')), chip(cat.status || 'Situação não informada'));
-    const actions = text('div', '', 'card-actions');
-    actions.append(button('Conhecer', () => openCat(cat)));
-    actions.append(button(kind === 'disponivel' ? 'Tenho interesse' : 'Ver situação', () => openCat(cat)));
-    article.append(top, chips, desc, extra, actions);
-    return article;
-  }
-  function renderBarChart(containerId, rows) {
-    const container = el(containerId);
-    const total = rows.reduce((sum, row) => sum + row[1], 0);
-    container.replaceChildren();
-    if (!total) {
-      container.append(text('p', 'Sem dados disponíveis para este gráfico.', 'muted'));
-      return;
+    function normalize(value) {
+      return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
     }
-    const highest = Math.max(...rows.map(row => row[1]), 1);
-    rows.forEach(([label, value]) => {
-      const row = text('div', '', 'bar-row');
-      const name = text('span', label);
-      const track = text('div', '', 'bar-track');
-      const fill = text('div', '', 'bar-fill');
-      fill.style.width = (100 * value / highest) + '%';
-      track.append(fill);
-      row.append(name, track, text('strong', value, 'bar-value'));
-      container.append(row);
-    });
-  }
-  function updateCharts() {
-    renderBarChart('sexChart', [
-      ['Fêmeas', allCats.filter(cat => sexKind(cat.sexo) === 'f').length],
-      ['Machos', allCats.filter(cat => sexKind(cat.sexo) === 'm').length]
-    ]);
-    renderBarChart('ageChart', [
-      ['Filhotes', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'filhote').length],
-      ['Jovens', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'jovem').length],
-      ['Adultos', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'adulto').length]
-    ]);
-  }
-  function setCounters() {
-    const available = allCats.filter(c => statusKind(c.status) === 'disponivel').length;
-    const adopted = allCats.filter(c => statusKind(c.status) === 'adotado').length;
-    el('countTotal').textContent = allCats.length;
-    el('countAvailable').textContent = available;
-    el('countAdopted').textContent = adopted;
-    el('countPercent').textContent = allCats.length ? (100 * available / allCats.length).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '0%';
-    updateCharts();
-  }
-  function getFiltered() {
-    const name = normalize(el('searchName').value);
-    const sex = el('filterSex').value;
-    const age = el('filterAge').value;
-    const status = el('filterStatus').value;
-    return allCats.filter(cat =>
-      (!name || normalize(cat.nome).includes(name)) &&
-      (!sex || sexKind(cat.sexo) === sex) &&
-      (!age || ageGroup(cat.idade) === age) &&
-      (!status || statusKind(cat.status) === status)
-    );
-  }
-  function render() {
-    const matches = getFiltered();
-    const grid = el('animalsGrid');
-    grid.replaceChildren(...matches.map(makeCard));
-    grid.setAttribute('aria-busy', 'false');
-    const empty = matches.length === 0;
-    el('emptyState').hidden = !empty;
-    el('retryLoad').hidden = true;
-    if (empty) {
-      el('emptyTitle').textContent = allCats.length ? 'Nenhum gato corresponde aos filtros' : 'Nenhum gato cadastrado ainda';
-      el('emptyMessage').textContent = allCats.length ? 'Altere os filtros para visualizar outros gatos.' : 'O banco ainda não retornou cadastros. Os gatos aparecerão aqui automaticamente quando forem cadastrados na API.';
+    function statusKind(status) {
+      const s = normalize(status);
+      if (s.includes('adotad')) return 'adotado';
+      if (s.includes('disponiv') || s.includes('aguardando') || s.includes('para adocao')) return 'disponivel';
+      return 'outro';
     }
-    el('resultsText').textContent = `${matches.length} ${matches.length === 1 ? 'gato encontrado' : 'gatos encontrados'}`;
-  }
-  // A VPS pode demorar a responder logo após uma implantação. Antes, o site
-  // cancelava cada consulta em 12 segundos e classificava a lentidão como erro.
-  const REQUEST_TIMEOUT_MS = 60000;
-  const MAX_REQUEST_ATTEMPTS = 2;
-  async function requestCats() {
-    let lastError;
-    for (let attempt = 1; attempt <= MAX_REQUEST_ATTEMPTS; attempt++) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      try {
-        const response = await fetch(API_URL, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
-          signal: controller.signal,
-          cache: 'no-store'
-        });
-        if (!response.ok) {
-          const error = new Error('A API respondeu HTTP ' + response.status);
-          error.httpStatus = response.status;
-          throw error;
+    function sexKind(sex) {
+      const s = normalize(sex);
+      if (['f','fem','femea','female'].includes(s) || s.startsWith('fem')) return 'f';
+      if (['m','mach','masc','male'].includes(s) || s.startsWith('mach') || s.startsWith('masc')) return 'm';
+      return '';
+    }
+    function sexLabel(sex) {
+      const kind = sexKind(sex);
+      return kind === 'f' ? 'Fêmea' : kind === 'm' ? 'Macho' : String(sex || 'Não informado');
+    }
+    function ageGroup(age) {
+      const n = Number(age);
+      if (!Number.isFinite(n) || n < 0) return 'outro';
+      return n <= 1 ? 'filhote' : n <= 3 ? 'jovem' : 'adulto';
+    }
+    function ageLabel(age) {
+      const n = Number(age);
+      if (!Number.isFinite(n) || n < 0) return 'Idade não informada';
+      return n === 0 ? 'Menos de 1 ano' : n === 1 ? '1 ano' : n + ' anos';
+    }
+    function text(tag, content, cls) {
+      const node = document.createElement(tag);
+      node.textContent = String(content ?? '');
+      if (cls) node.className = cls;
+      return node;
+    }
+    function chip(content) { return text('span', content, 'chip'); }
+    function button(label, handler, disabled = false) {
+      const node = text('button', label, 'btn');
+      node.type = 'button';
+      node.disabled = disabled;
+      if (handler) node.addEventListener('click', handler);
+      return node;
+    }
+    function formatCat(cat) {
+      const parts = [
+        `AdoCat - gato #${cat.id ?? 'sem ID'}`,
+        `Nome: ${cat.nome || 'Não informado'}`,
+        `Idade: ${ageLabel(cat.idade)}`,
+        `Sexo: ${sexLabel(cat.sexo)}`,
+        `Raça: ${cat.raca || cat.racaOuCor || 'Não informada'}`,
+        `Cor / pelagem: ${cat.cor || 'Não informada'}`,
+        `Castrado: ${cat.castrado === true ? 'Sim' : cat.castrado === false ? 'Não' : 'Não informado'}`,
+        `Status: ${cat.status || 'Não informado'}`
+      ];
+      return parts.join('\n');
+    }
+    function openCat(cat) {
+      selectedCat = cat;
+      el('dialogTitle').textContent = cat.nome || 'Gato cadastrado';
+      el('dialogInfo').textContent = `Cadastro #${cat.id ?? 'não informado'} · ${ageLabel(cat.idade)}`;
+      const tags = el('dialogTags');
+      tags.replaceChildren(
+              chip(sexLabel(cat.sexo)),
+              chip('Raça: ' + (cat.raca || cat.racaOuCor || 'Não informada')),
+              chip('Cor: ' + (cat.cor || 'Não informada')),
+              chip(cat.castrado === true ? 'Castrado' : cat.castrado === false ? 'Não castrado' : 'Castração não informada'),
+              chip(cat.status || 'Status não informado')
+      );
+      el('copyFeedback').textContent = '';
+      el('catDialog').showModal();
+    }
+    function makeCard(cat) {
+      const article = document.createElement('article');
+      article.className = 'card animal-card';
+      const top = text('div', '', 'animal-top');
+      top.append(text('h3', cat.nome || 'Gato sem nome'));
+      const kind = statusKind(cat.status);
+      const tag = text('span', cat.status || 'Status não informado', 'status-tag ' + (kind === 'adotado' ? 'adopted' : kind === 'disponivel' ? '' : 'other'));
+      top.append(tag);
+      const chips = text('div', '', 'chips');
+      chips.append(chip('Gato'), chip(sexLabel(cat.sexo)), chip(ageLabel(cat.idade)));
+      const desc = text('p', `Raça: ${cat.raca || cat.racaOuCor || 'não informada'}. Cor/pelagem: ${cat.cor || 'não informada'}. Castração: ${cat.castrado === true ? 'sim' : cat.castrado === false ? 'não' : 'não informada'}.`, 'muted');
+      const extra = text('div', '', 'chips');
+      extra.append(chip('ID: ' + (cat.id ?? '—')), chip(cat.status || 'Situação não informada'));
+      const actions = text('div', '', 'card-actions');
+      actions.append(button('Conhecer', () => openCat(cat)));
+      actions.append(button(kind === 'disponivel' ? 'Tenho interesse' : 'Ver situação', () => openCat(cat)));
+      article.append(top, chips, desc, extra, actions);
+      return article;
+    }
+    function renderBarChart(containerId, rows) {
+      const container = el(containerId);
+      const total = rows.reduce((sum, row) => sum + row[1], 0);
+      container.replaceChildren();
+      if (!total) {
+        container.append(text('p', 'Sem dados disponíveis para este gráfico.', 'muted'));
+        return;
+      }
+      const highest = Math.max(...rows.map(row => row[1]), 1);
+      rows.forEach(([label, value]) => {
+        const row = text('div', '', 'bar-row');
+        const name = text('span', label);
+        const track = text('div', '', 'bar-track');
+        const fill = text('div', '', 'bar-fill');
+        fill.style.width = (100 * value / highest) + '%';
+        track.append(fill);
+        row.append(name, track, text('strong', value, 'bar-value'));
+        container.append(row);
+      });
+    }
+    function updateCharts() {
+      renderBarChart('sexChart', [
+        ['Fêmeas', allCats.filter(cat => sexKind(cat.sexo) === 'f').length],
+        ['Machos', allCats.filter(cat => sexKind(cat.sexo) === 'm').length]
+      ]);
+      renderBarChart('ageChart', [
+        ['Filhotes', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'filhote').length],
+        ['Jovens', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'jovem').length],
+        ['Adultos', allCats.filter(cat => cat.idade !== null && cat.idade !== undefined && cat.idade !== '' && ageGroup(cat.idade) === 'adulto').length]
+      ]);
+    }
+    function setCounters() {
+      const available = allCats.filter(c => statusKind(c.status) === 'disponivel').length;
+      const adopted = allCats.filter(c => statusKind(c.status) === 'adotado').length;
+      el('countTotal').textContent = allCats.length;
+      el('countAvailable').textContent = available;
+      el('countAdopted').textContent = adopted;
+      el('countPercent').textContent = allCats.length ? (100 * available / allCats.length).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : '0%';
+      updateCharts();
+    }
+    function getFiltered() {
+      const name = normalize(el('searchName').value);
+      const sex = el('filterSex').value;
+      const age = el('filterAge').value;
+      const status = el('filterStatus').value;
+      const breed = normalize(el('filterBreed').value);
+      const color = normalize(el('filterColor').value);
+      return allCats.filter(cat =>
+              (!name || normalize(cat.nome).includes(name)) &&
+              (!sex || sexKind(cat.sexo) === sex) &&
+              (!age || ageGroup(cat.idade) === age) &&
+              (!status || statusKind(cat.status) === status) &&
+              (!breed || normalize(cat.raca || cat.racaOuCor).includes(breed)) &&
+              (!color || normalize(cat.cor).includes(color))
+      );
+    }
+    let showAllCats = false;
+    function render() {
+      const matches = getFiltered().slice().sort((a,b) => (statusKind(a.status)==='adotado') - (statusKind(b.status)==='adotado'));
+      const grid = el('animalsGrid');
+      const visible = showAllCats ? matches : matches.slice(0,3);
+      grid.replaceChildren(...visible.map(makeCard));
+      const moreButton = el('toggleCats');
+      moreButton.hidden = matches.length <= 3;
+      moreButton.textContent = showAllCats ? 'Ver menos ↑' : `Ver mais gatos (${matches.length - 3}) ↓`;
+      grid.setAttribute('aria-busy', 'false');
+      const empty = matches.length === 0;
+      el('emptyState').hidden = !empty;
+      el('retryLoad').hidden = true;
+      if (empty) {
+        el('emptyTitle').textContent = allCats.length ? 'Nenhum gato corresponde aos filtros' : 'Nenhum gato cadastrado ainda';
+        el('emptyMessage').textContent = allCats.length ? 'Altere os filtros para visualizar outros gatos.' : 'O banco ainda não retornou cadastros. Os gatos aparecerão aqui automaticamente quando forem cadastrados na API.';
+      }
+      el('resultsText').textContent = matches.length > 3 && !showAllCats ? `Exibindo 3 de ${matches.length} gatos. Os gatos adotados aparecem ao final.` : `${matches.length} ${matches.length === 1 ? 'gato encontrado' : 'gatos encontrados'}`;
+    }
+    // A VPS pode demorar a responder logo após uma implantação. Antes, o site
+    // cancelava cada consulta em 12 segundos e classificava a lentidão como erro.
+    const REQUEST_TIMEOUT_MS = 60000;
+    const MAX_REQUEST_ATTEMPTS = 2;
+    async function requestCats() {
+      let lastError;
+      for (let attempt = 1; attempt <= MAX_REQUEST_ATTEMPTS; attempt++) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        try {
+          const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal,
+            cache: 'no-store'
+          });
+          if (!response.ok) {
+            const error = new Error('A API respondeu HTTP ' + response.status);
+            error.httpStatus = response.status;
+            throw error;
+          }
+          const data = await response.json();
+          if (!Array.isArray(data)) throw new Error('A API retornou um formato inesperado.');
+          return data;
+        } catch (error) {
+          lastError = error;
+          // Repetir apenas erros de conexão/timeout ou de leitura, não um 401/403/500.
+          if (error.httpStatus || attempt === MAX_REQUEST_ATTEMPTS) break;
+          el('resultsText').textContent = 'O servidor está demorando a responder. Tentando novamente...';
+          console.warn('AdoCat: primeira consulta à API não foi concluída:', error);
+        } finally {
+          clearTimeout(timeout);
         }
-        const data = await response.json();
-        if (!Array.isArray(data)) throw new Error('A API retornou um formato inesperado.');
-        return data;
+      }
+      throw lastError;
+    }
+    async function loadCats() {
+      loadingFailed = false;
+      el('resultsText').textContent = 'Carregando gatos cadastrados...';
+      el('animalsGrid').setAttribute('aria-busy', 'true');
+      el('emptyState').hidden = true;
+      el('retryLoad').hidden = true;
+      try {
+        const data = await requestCats();
+        allCats = data.filter(item => item && typeof item === 'object');
       } catch (error) {
-        lastError = error;
-        // Repetir apenas erros de conexão/timeout ou de leitura, não um 401/403/500.
-        if (error.httpStatus || attempt === MAX_REQUEST_ATTEMPTS) break;
-        el('resultsText').textContent = 'O servidor está demorando a responder. Tentando novamente...';
-        console.warn('AdoCat: primeira consulta à API não foi concluída:', error);
-      } finally {
-        clearTimeout(timeout);
+        loadingFailed = true;
+        el('animalsGrid').replaceChildren();
+        el('animalsGrid').setAttribute('aria-busy', 'false');
+        el('resultsText').textContent = 'Não foi possível consultar os gatos neste momento.';
+        el('emptyState').hidden = false;
+        el('emptyTitle').textContent = 'Não foi possível consultar a API';
+        el('emptyMessage').textContent = error.name === 'AbortError'
+                ? 'O servidor demorou a responder. Verifique se o serviço está ativo e tente novamente.'
+                : 'O site não conseguiu obter os dados de /api/gatos. Tente novamente.';
+        el('retryLoad').hidden = false;
+        ['countTotal','countAvailable','countAdopted','countPercent'].forEach(id => { el(id).textContent = '—'; });
+        ['sexChart','ageChart'].forEach(id => { el(id).textContent = 'Dados indisponíveis no momento.'; });
+        console.error('AdoCat: erro ao consultar /api/gatos:', error);
+        return;
+      }
+      // Uma resposta HTTP 200 com [] é válida: mostrar zero gatos, não erro de API.
+      try {
+        setCounters();
+        render();
+      } catch (error) {
+        console.error('AdoCat: erro ao exibir a resposta da API:', error);
+        el('resultsText').textContent = 'Erro ao exibir os dados recebidos.';
+        el('animalsGrid').setAttribute('aria-busy', 'false');
+        el('emptyState').hidden = false;
+        el('emptyTitle').textContent = 'Erro ao apresentar os gatos';
+        el('emptyMessage').textContent = 'A API respondeu, mas houve um erro na apresentação dos dados.';
+        el('retryLoad').hidden = false;
+        loadingFailed = true;
       }
     }
-    throw lastError;
-  }
-  async function loadCats() {
-    loadingFailed = false;
-    el('resultsText').textContent = 'Carregando gatos cadastrados...';
-    el('animalsGrid').setAttribute('aria-busy', 'true');
-    el('emptyState').hidden = true;
-    el('retryLoad').hidden = true;
-    try {
-      const data = await requestCats();
-      allCats = data.filter(item => item && typeof item === 'object');
-    } catch (error) {
-      loadingFailed = true;
-      el('animalsGrid').replaceChildren();
-      el('animalsGrid').setAttribute('aria-busy', 'false');
-      el('resultsText').textContent = 'Não foi possível consultar os gatos neste momento.';
-      el('emptyState').hidden = false;
-      el('emptyTitle').textContent = 'Não foi possível consultar a API';
-      el('emptyMessage').textContent = error.name === 'AbortError'
-        ? 'O servidor demorou a responder. Verifique se o serviço está ativo e tente novamente.'
-        : 'O site não conseguiu obter os dados de /api/gatos. Tente novamente.';
-      el('retryLoad').hidden = false;
-      ['countTotal','countAvailable','countAdopted','countPercent'].forEach(id => { el(id).textContent = '—'; });
-      ['sexChart','ageChart'].forEach(id => { el(id).textContent = 'Dados indisponíveis no momento.'; });
-      console.error('AdoCat: erro ao consultar /api/gatos:', error);
-      return;
-    }
-    // Uma resposta HTTP 200 com [] é válida: mostrar zero gatos, não erro de API.
-    try {
-      setCounters();
-      render();
-    } catch (error) {
-      console.error('AdoCat: erro ao exibir a resposta da API:', error);
-      el('resultsText').textContent = 'Erro ao exibir os dados recebidos.';
-      el('animalsGrid').setAttribute('aria-busy', 'false');
-      el('emptyState').hidden = false;
-      el('emptyTitle').textContent = 'Erro ao apresentar os gatos';
-      el('emptyMessage').textContent = 'A API respondeu, mas houve um erro na apresentação dos dados.';
-      el('retryLoad').hidden = false;
-      loadingFailed = true;
-    }
-  }
-  el('filtersForm').addEventListener('submit', event => { event.preventDefault(); if (!loadingFailed) render(); });
-  ['searchName','filterSex','filterAge','filterStatus'].forEach(id => el(id).addEventListener(id === 'searchName' ? 'input' : 'change', () => { if (!loadingFailed) render(); }));
-  el('clearFilters').addEventListener('click', () => { el('filtersForm').reset(); if (!loadingFailed) render(); });
-  el('retryLoad').addEventListener('click', loadCats);
-  el('closeDialog').addEventListener('click', () => el('catDialog').close());
-  el('dialogBack').addEventListener('click', () => el('catDialog').close());
-  el('catDialog').addEventListener('click', event => { if (event.target === el('catDialog')) el('catDialog').close(); });
-  el('copyCat').addEventListener('click', async () => {
-    if (!selectedCat) return;
-    try { await navigator.clipboard.writeText(formatCat(selectedCat)); el('copyFeedback').textContent = 'Dados copiados!'; }
-    catch (_) { el('copyFeedback').textContent = 'Não foi possível copiar automaticamente. Use os dados visíveis acima.'; }
-  });
-  loadCats();
-})();
-</script>
-
-<script
-  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-  crossorigin="">
+    el('filtersForm').addEventListener('submit', event => { event.preventDefault(); showAllCats=false; if (!loadingFailed) render(); });
+    ['searchName','filterBreed','filterColor','filterSex','filterAge','filterStatus'].forEach(id => el(id).addEventListener(['searchName','filterBreed','filterColor'].includes(id) ? 'input' : 'change', () => { showAllCats=false; if (!loadingFailed) render(); }));
+    el('toggleCats').addEventListener('click', () => { showAllCats = !showAllCats; if (!loadingFailed) render(); });
+    el('clearFilters').addEventListener('click', () => { el('filtersForm').reset(); showAllCats=false; if (!loadingFailed) render(); });
+    el('retryLoad').addEventListener('click', loadCats);
+    el('closeDialog').addEventListener('click', () => el('catDialog').close());
+    el('dialogBack').addEventListener('click', () => el('catDialog').close());
+    el('catDialog').addEventListener('click', event => { if (event.target === el('catDialog')) el('catDialog').close(); });
+    el('copyCat').addEventListener('click', async () => {
+      if (!selectedCat) return;
+      try { await navigator.clipboard.writeText(formatCat(selectedCat)); el('copyFeedback').textContent = 'Dados copiados!'; }
+      catch (_) { el('copyFeedback').textContent = 'Não foi possível copiar automaticamente. Use os dados visíveis acima.'; }
+    });
+    loadCats();
+  })();
 </script>
 
 <script>
   (() => {
-    const mapElement = document.getElementById('occurrenceMap');
+    const form = document.getElementById('donationForm');
+    if (!form) return;
 
-    if (!mapElement) return;
+    const el = (id) => document.getElementById(id);
+    const type = el('donationType');
+    const email = el('donorEmail');
+    const emailField = el('emailField');
+    const paymentMethod = el('paymentMethod');
+    const paymentField = el('paymentField');
+    const cardFields = el('cardFields');
+    const cardName = el('cardName');
+    const cardNumber = el('cardNumber');
+    const cardExpiry = el('cardExpiry');
+    const cardCvv = el('cardCvv');
+    const button = el('donationButton');
+    const feedback = el('donationFeedback');
+    const info = el('donationInfo');
+    const pixResult = el('pixResult');
+    const pixCode = el('pixCode');
+    const copyPixButton = el('copyPixButton');
 
-    if (!window.L) {
-      mapElement.textContent =
-        'O mapa não carregou. Verifique a conexão com a internet e atualize a página.';
-      return;
+    const confirmArea = el('paymentConfirmArea');
+    const confirmButton = el('confirmPaymentButton');
+    let pendingDonation = null;
+
+    function updateForm() {
+      const mensal = type.value === 'MENSAL';
+      const cartao = mensal || paymentMethod.value === 'CARTAO';
+      emailField.hidden = !mensal;
+      email.required = mensal;
+      paymentField.hidden = mensal;
+      paymentMethod.disabled = mensal;
+      cardFields.hidden = !cartao;
+      [cardName, cardNumber, cardExpiry, cardCvv].forEach((campo) => { campo.required = cartao; });
+      button.textContent = mensal ? 'Preparar apoio mensal' : cartao ? 'Preparar confirmação do cartão' : 'Gerar código Pix';
+      info.textContent = mensal
+        ? 'Apoio mensal registrado no sistema de testes. Nenhuma cobrança real será realizada.'
+        : cartao
+          ? 'Use somente dados fictícios. O sistema não processa cobranças.'
+          : 'Gere um código Pix de teste e, depois, confirme que realizou o pagamento.';
+      pixResult.hidden = true;
+      confirmArea.hidden = true;
+      pendingDonation = null;
+      feedback.textContent = '';
     }
 
-    const map = L.map(mapElement).setView([-21.603, -48.365], 13);
+    type.addEventListener('change', updateForm);
+    paymentMethod.addEventListener('change', updateForm);
+    cardNumber.addEventListener('input', () => {
+      const digits = cardNumber.value.replace(/\D/g, '').slice(0, 16);
+      cardNumber.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+    });
+    cardExpiry.addEventListener('input', () => {
+      let digits = cardExpiry.value.replace(/\D/g, '').slice(0, 4);
+      if (digits.length > 2) digits = digits.slice(0, 2) + '/' + digits.slice(2);
+      cardExpiry.value = digits;
+    });
+    cardCvv.addEventListener('input', () => { cardCvv.value = cardCvv.value.replace(/\D/g, '').slice(0, 4); });
+    copyPixButton.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(pixCode.value); feedback.textContent = 'Código Pix copiado.'; }
+      catch (erro) { pixCode.focus(); pixCode.select(); document.execCommand('copy'); feedback.textContent = 'Código Pix selecionado para cópia.'; }
+    });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
-
-    // Exemplos inteiramente fictícios. Não representam animais ou ocorrências reais.
-    const demoPoints = [
-      {
-        lat: -21.595, lng: -48.371,
-        id: 'Exemplo 01',
-        raca: 'Bengal',
-        cor: 'Laranja e branco',
-        sexo: 'Macho',
-        idade: 'Jovem',
-        peso: '3,2 kg',
-        situacao: 'Dado demonstrativo',
-        imagem: 'images/gatos/gato-1.jpg'
-      },
-      {
-        lat: -21.608, lng: -48.356,
-        id: 'Exemplo 02',
-        raca: 'Sem raça definida (SRD)',
-        cor: 'Cinza',
-        sexo: 'Fêmea',
-        idade: 'Adulta',
-        peso: '3,8 kg',
-        situacao: 'Dado demonstrativo',
-        imagem: 'images/gatos/gato-2.jpg'
-      },
-      {
-        lat: -21.615, lng: -48.377,
-        id: 'Exemplo 03',
-        raca: 'Bengal',
-        cor: 'Preto e branco',
-        sexo: 'Não informado',
-        idade: 'Não informada',
-        peso: 'Não informado',
-        situacao: 'Dado demonstrativo',
-        imagem: 'images/gatos/gato-3.jpg'
-      },
-      {
-        lat: -21.590, lng: -48.350,
-        id: 'Exemplo 04',
-        raca: 'Savannah',
-        cor: 'Tigrada',
-        sexo: 'Macho',
-        idade: 'Filhote',
-        peso: '1,4 kg',
-        situacao: 'Dado demonstrativo',
-        imagem: 'images/gatos/gato-4.jpg'
-      },
-      {
-        lat: -21.620, lng: -48.360,
-        id: 'Exemplo 05',
-        raca: 'Abissínio',
-        cor: 'Branca',
-        sexo: 'Fêmea',
-        idade: 'Não informada',
-        peso: 'Não informado',
-        situacao: 'Dado demonstrativo',
-        imagem: 'images/gatos/gato-5.jpg'
-      },
-      {
-        lat: -21.600, lng: -48.385,
-        id: 'Exemplo 06',
-        raca: 'Siamêsa',
-        cor: 'Cinza e branca',
-        sexo: 'Não informado',
-        idade: 'Adulta',
-        peso: '4,1 kg ',
-        situacao: 'Dado demonstrativo',
-        imagem: 'images/gatos/gato-6.jpg'
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const mensal = type.value === 'MENSAL';
+      const pix = !mensal && paymentMethod.value === 'PIX';
+      const nome = el('donorName').value.trim();
+      const valor = Number(el('donationValue').value);
+      if (!nome || !Number.isFinite(valor) || valor <= 0) { feedback.textContent = 'Preencha seu nome e um valor válido.'; return; }
+      if (mensal && !email.value.trim()) { feedback.textContent = 'Informe seu e-mail para o apoio mensal.'; return; }
+      if (!pix) {
+        const numero = cardNumber.value.replace(/\D/g, '');
+        if (!cardName.value.trim() || numero.length !== 16 || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry.value) || !/^\d{3,4}$/.test(cardCvv.value)) {
+          feedback.textContent = 'Preencha os dados fictícios do cartão corretamente.'; return;
+        }
       }
-    ];
+      pendingDonation = { mensal, pix, nome, valor, email: email.value.trim() };
+      if (pix) {
+        pixCode.value = 'PIX-TESTE-ADOCAT-' + Math.random().toString(36).slice(2, 14).toUpperCase();
+        pixResult.hidden = false;
+        confirmButton.textContent = 'Já fiz o Pix';
+      } else {
+        pixResult.hidden = true;
+        confirmButton.textContent = 'Confirmar cartão';
+      }
+      confirmArea.hidden = false;
+      feedback.textContent = 'Confira os dados e confirme abaixo. A contribuição será registrada diretamente como aprovada no painel.';
+    });
 
-    function escaparHtml(valor) {
-      return String(valor).replace(/[&<>"']/g, (caractere) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      })[caractere]);
-    }
+    confirmButton.addEventListener('click', async () => {
+      if (!pendingDonation) { feedback.textContent = 'Prepare primeiro sua contribuição.'; return; }
+      const item = pendingDonation;
+      confirmButton.disabled = true;
+      feedback.textContent = 'Registrando sua confirmação...';
+      try {
+        const url = item.mensal ? '/api/assinaturas' : '/api/pagamentos';
+        const dados = item.mensal
+          ? { nomeApoiador: item.nome, email: item.email, valorMensal: item.valor, formaPagamento: 'CARTAO' }
+          : { nomePagador: item.nome, valor: item.valor, formaPagamento: item.pix ? 'PIX' : 'CARTAO' };
+        const resposta = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+        if (!resposta.ok) throw new Error(await resposta.text() || 'Não foi possível registrar a confirmação.');
+        await resposta.json();
+        form.reset();
+        updateForm();
+        feedback.textContent = 'Contribuição registrada como aprovada! Obrigado por apoiar o AdoCat. Nenhum valor foi cobrado nesta versão de testes.';
+      } catch (erro) {
+        feedback.textContent = 'Não foi possível registrar. Tente novamente.';
+        console.error('Erro ao registrar contribuição:', erro);
+      } finally { confirmButton.disabled = false; }
+    });
 
-/*     demoPoints.forEach((gato) => {
-      const marcador = L.circleMarker([gato.lat, gato.lng], {
-        radius: 9,
-        color: '#ffffff',
-        weight: 2,
-        fillColor: '#315b47',
-        fillOpacity: 0.9
-      }).addTo(map);
-
-      // Dica curta ao passar o mouse. No celular, toque no marcador.
-      marcador.bindTooltip(
-        `<strong>${escaparHtml(gato.id)}</strong> · ${escaparHtml(gato.cor)}`,
-        { direction: 'top', sticky: true }
-      );
-
-      // Resumo exibido ao clicar ou tocar no marcador.
-      marcador.bindPopup(`
-        <strong>${escaparHtml(gato.id)} — perfil demonstrativo</strong>
-        <br><strong>Raça:</strong> ${escaparHtml(gato.raca)}
-        <br><strong>Cor:</strong> ${escaparHtml(gato.cor)}
-        <br><strong>Sexo:</strong> ${escaparHtml(gato.sexo)}
-        <br><strong>Idade:</strong> ${escaparHtml(gato.idade)}
-        <br><strong>Peso:</strong> ${escaparHtml(gato.peso)}
-        <br><strong>Situação:</strong> ${escaparHtml(gato.situacao)}
-        <br><small>Matão–SP · dados fictícios para demonstração</small>
-      `);
-    }); */
-
-const markers = [];
-
-demoPoints.forEach((gato) => {
-  const marcador = L.circleMarker([gato.lat, gato.lng], {
-    radius: 9,
-    color: '#ffffff',
-    weight: 2,
-    fillColor: '#315b47',
-    fillOpacity: 0.9
-  }).addTo(map);
-
-  markers.push(marcador);
-
-  const foto = gato.imagem
-    ? `<img src="${escaparHtml(gato.imagem)}"
-            alt="Foto ilustrativa do ${escaparHtml(gato.id)}">`
-    : '';
-
-  const resumo = `
-    ${foto}
-    <strong>${escaparHtml(gato.id)}: </strong><br>
-    Raça: ${escaparHtml(gato.raca)}<br>
-    Cor: ${escaparHtml(gato.cor)}<br>
-    Sexo: ${escaparHtml(gato.sexo)}<br>
-    Idade: ${escaparHtml(gato.idade)}<br>
-    Peso: ${escaparHtml(gato.peso)}<br>
-    <small>Matão–SP</small>
-  `;
-
-  marcador.bindTooltip(resumo, {
-    direction: 'top',
-    sticky: true,
-    opacity: 0.98,
-    className: 'cat-tooltip'
-  });
-
-  marcador.bindPopup(resumo, {
-    maxWidth: 280
-  });
-});
-
-// Ajusta o enquadramento para mostrar todos os marcadores.
-if (markers.length) {
-  map.fitBounds(L.featureGroup(markers).getBounds(), {
-    padding: [24, 24],
-    maxZoom: 14
-  });
-}
+    updateForm();
   })();
 </script>
 
+<script>
+(function(){
+ const onlyDigits=v=>String(v||'').replace(/\D/g,'');
+ function cpfValido(v){const c=onlyDigits(v);if(c.length!==11||/^([0-9])\1+$/.test(c))return false;let s=0;for(let i=0;i<9;i++)s+=Number(c[i])*(10-i);let d=11-(s%11);d=d>=10?0:d;if(d!==Number(c[9]))return false;s=0;for(let i=0;i<10;i++)s+=Number(c[i])*(11-i);d=11-(s%11);d=d>=10?0:d;return d===Number(c[10]);}
+ document.querySelectorAll('.inscricao-form input[name="cpf"]').forEach(el=>el.addEventListener('input',()=>{let v=onlyDigits(el.value).slice(0,11);if(v.length>9)v=v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2}).*$/,'$1.$2.$3-$4');else if(v.length>6)v=v.replace(/^(\d{3})(\d{3})(\d{0,3}).*$/,'$1.$2.$3');else if(v.length>3)v=v.replace(/^(\d{3})(\d{0,3}).*$/,'$1.$2');el.value=v;}));
+ document.querySelectorAll('.inscricao-form').forEach(form=>form.addEventListener('submit',async e=>{e.preventDefault();const msg=form.querySelector('[role="status"]');const fd=new FormData(form);const data=Object.fromEntries(fd.entries());data.tipo=form.dataset.tipo;data.possuiAnimais=data.possuiAnimais==='true';if(data.capacidadeAcolhimento)data.capacidadeAcolhimento=Number(data.capacidadeAcolhimento);if(!cpfValido(data.cpf)){msg.textContent='CPF inválido. Confira os números digitados.';return;}const btn=form.querySelector('button[type="submit"]');btn.disabled=true;msg.textContent='Enviando inscrição...';try{const r=await fetch('/api/inscricoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});let body={};try{body=await r.json()}catch{}if(!r.ok)throw new Error(body.message||body.detail||'Não foi possível enviar a inscrição.');form.reset();msg.textContent=body.mensagem||'Inscrição enviada! Aguarde a análise da equipe.';}catch(err){msg.textContent=err.message;}finally{btn.disabled=false;}}));
+})();
+</script>
 
 </body>
 </html>
-
-<!-- Teste de alteracao do Fernando -->

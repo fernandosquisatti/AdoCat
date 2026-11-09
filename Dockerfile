@@ -12,4 +12,4 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar /app/app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-Dserver.port=8080", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

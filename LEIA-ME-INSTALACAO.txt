@@ -1,68 +1,65 @@
-ADOCAT — PAINEL ADMINISTRATIVO / JAVA SPRING BOOT
-================================================
-Este pacote adiciona o painel de administração ao sistema já existente.
-Não é um sistema PHP e NÃO requer outro serviço no EasyPanel.
+ADOCAT — VERSÃO DE TESTE (REVISADA)
+===================================
 
-ARQUIVOS DO ZIP (CAMINHOS RELATIVOS À RAIZ DO GITHUB)
-  pom.xml (substituir: acrescenta o starter de segurança)
-  src/main/java/com/adocat/config/SecurityConfig.java
-  src/main/java/com/adocat/controller/CsrfController.java
-  src/main/java/com/adocat/controller/GatoAdminController.java
-  src/main/java/com/adocat/controller/AdminUsuariosController.java
-  src/main/java/com/adocat/controller/GatoController.java (substituir)
-  src/main/java/com/adocat/controller/UsuarioController.java (substituir)
-  src/main/resources/static/admin.html
-  src/main/resources/static/admin-login.html
+IMPORTANTE: PAGAMENTOS SÃO SIMULADOS
+Pix, cartão e assinatura mensal apenas REGISTRAM a contribuição no sistema.
+Nenhum valor é cobrado e não há confirmação bancária. Para receber doações
+reais será preciso integrar um provedor de pagamento.
 
-ATENÇÃO: mantenha o index.html público que já está no seu projeto.
-Também NÃO substitua seu application.properties por um arquivo antigo!
-Seu backend já funciona com variáveis SPRING_DATASOURCE_* no EasyPanel.
+FUNCIONALIDADES
+- Catálogo público de gatos (raça e cor/pelagem em campos separados; mostra 3 e expande com "Ver mais gatos").
+- Inscrições públicas de adotante, voluntário e lar temporário, com validação de CPF.
+  O CPF nunca é salvo em texto: guarda-se apenas um hash e os 4 últimos dígitos.
+  A mesma pessoa pode se inscrever em mais de uma categoria (uma vez por categoria).
+- Painel administrativo: gatos, inscrições, contribuições, assinaturas e resgates.
 
-PASSO 1 — NO EASYPANEL > ADOCAT > BACKEND > AMBIENTE
-Adicione as variáveis (escolha você as credenciais, com uma senha FORTE):
-    APP_ADMIN_USERNAME=admin
-    APP_ADMIN_PASSWORD=<uma senha forte, única, com pelo menos 20 caracteres>
-Não coloque essas credenciais no GitHub. Nunca compartilhe a senha.
-As variáveis SPRING_DATASOURCE_* e as portas atuais DEVEM continuar iguais.
+CORREÇÕES DESTA REVISÃO
+- Removido o DadosDemonstracaoInitializer, que rodava a cada inicialização e
+  renomeava gatos, trocava a forma de pagamento de registros antigos e recriava
+  resgates fictícios.
+- Pagamentos/assinaturas públicos: o servidor valida nome, e-mail, forma de pagamento
+  e valor (R$ 1 a R$ 10.000) e ignora id/status enviados pelo navegador
+  (antes era possível sobrescrever um pagamento existente).
+- CSRF volta a ser exigido nas ações do admin (aprovar, recusar, cancelar, simular cobrança).
+  Só os 3 formulários públicos (inscrição, pagamento, assinatura) dispensam o token.
+- Removido @CrossOrigin("*") dos controllers.
+- /usuarios (legado, só admin) voltou a criptografar a senha e não devolve mais senha/hash.
+- Erros de "não encontrado"/"dado inválido" retornam 404/400 em vez de 500.
+- Spring Boot fixado na versão estável 4.1.2 (antes era 4.2.0-SNAPSHOT).
+- Teste padrão (que nunca rodava) substituído por um teste de CPF que não precisa de banco.
+- Arquivos organizados nas pastas corretas; pasta target/ e cópias de código em .txt removidas.
 
-PASSO 2 — NO GITHUB (branch master)
-Copie os arquivos do ZIP para os caminhos exatos, mantendo as pastas.
-O pom.xml deve conter uma dependência nova de spring-boot-starter-security.
+VARIÁVEIS DE AMBIENTE
+  DB_URL              (opcional) padrão: jdbc:mysql://localhost:3306/adocat...
+  DB_USERNAME         usuário do MySQL
+  DB_PASSWORD         senha do MySQL (nunca coloque no código)
+  APP_ADMIN_USERNAME  login do painel
+  APP_ADMIN_PASSWORD  senha do painel (use uma senha forte)
+  APP_CPF_SECRET      (recomendado) chave longa e aleatória para proteger os CPFs.
+                      Sem ela o sistema funciona, mas usa um hash mais fraco.
+                      Defina antes da primeira inscrição e NÃO troque depois,
+                      senão a checagem de CPF duplicado deixa de reconhecer os antigos.
+  PORT                (opcional) porta HTTP, padrão 8080
 
-PASSO 3 — EASYPANEL
-Clique em Implantar no mesmo backend já existente.
-Se aparecer erro de build, não apague o banco nem o serviço; restaure pom.xml
-anterior e compartilhe a mensagem do erro, sem segredos.
+COMO EXECUTAR NO WINDOWS (PowerShell)
+1. Abra a pasta AdoCat-master no IntelliJ.
+2. No terminal, na pasta do mvnw.cmd:
+   $env:DB_USERNAME="root"
+   $env:DB_PASSWORD="SUA_SENHA_LOCAL_DO_MYSQL"
+   $env:APP_ADMIN_USERNAME="admin"
+   $env:APP_ADMIN_PASSWORD="DEFINA_UMA_SENHA_FORTE"
+   $env:APP_CPF_SECRET="UMA_FRASE_LONGA_E_ALEATORIA"
+3. .\mvnw.cmd spring-boot:run
+4. Acesse http://localhost:8080 e http://localhost:8080/admin-login.html
 
-PASSO 4 — ABRIR O PAINEL
-    https://adocat-backend.2ha91c.easypanel.host/admin.html
-Será aberto o login administrativo; entre com APP_ADMIN_USERNAME e APP_ADMIN_PASSWORD.
-Sem as variáveis de login, o backend inicia, mas nenhuma conta pode entrar.
-A página pública e GET /api/gatos continuam acessíveis sem login.
-
-O QUE FUNCIONA
-  - Visão geral e indicadores derivados dos registros reais.
-  - Gatos: listar, filtrar, cadastrar, editar e excluir no banco.
-  - Doações: listar e registrar doações financeiras no banco.
-  - Usuários: consultar somente id/nome/email/tipo, sem enviar senhas.
-  - Login de administrador via sessão e senha BCrypt; proteção CSRF.
-
-O QUE AINDA NÃO FUNCIONA (requer novos endpoints e tabelas Java)
-  - Adoções e seus formulários/situação, resgates e histórico veterinário.
-  - Upload de fotos, notificações, relatórios completos, múltiplas contas admin.
+BANCO DE DADOS
+- ddl-auto=update cria as tabelas/colunas novas (raça, cor, tb_resgates etc.) sem apagar dados.
+- Faça backup antes de atualizar.
+- Se o banco já existia: execute AJUSTE_BANCO_EMAIL.sql para liberar o mesmo e-mail
+  em mais de uma categoria de inscrição.
+- Opcional: LIMPAR_REGISTROS_DEMO.sql remove registros antigos com nome iniciado por "DEMO •".
+  Gatos que a versão anterior já tinha renomeado (Nino, Amora...) precisam ser apagados pelo painel.
 
 SEGURANÇA
-  - Rotas públicas de leitura dos gatos continuam públicas, mas POST/PUT/DELETE
-    exigem a sessão ADMIN; GET /usuarios e /doacoes agora exigem login.
-  - A conta ADMIN é separada da tabela tb_usuarios e existe só em memória.
-  - Substituímos o UsuarioController para impedir expor senhas via JSON
-    e armazenar novas senhas com hash BCrypt.
-  - Troque qualquer senha de MySQL que tenha sido exposta em arquivo público.
-  - O repositório de exemplo antigo tinha uma senha em application.properties:
-    remova do repositório e do histórico e rotacione a credencial correspondente.
-  - Faça backup do banco antes de aplicar alterações em produção.
-
-NOTA
-Este pacote foi estruturado com base nos arquivos Java do ZIP AdoCat-master
-compartilhado anteriormente; se houve alterações recentes nos controllers,
-compare antes de substituir os dois controllers e o pom.xml.
+A senha do MySQL esteve gravada no application.properties em commits antigos do
+repositório público no GitHub. Troque essa senha no MySQL.

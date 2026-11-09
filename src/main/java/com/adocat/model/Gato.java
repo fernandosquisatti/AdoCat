@@ -13,7 +13,9 @@ public class Gato {
     private String nome;
     private int idade;
     private String sexo;
-    private String racaOuCor;
+    private String racaOuCor; // compatibilidade com cadastros antigos
+    private String raca;
+    private String cor;
     private boolean castrado;
     private String status;
 
@@ -38,6 +40,10 @@ public class Gato {
     public void setSexo(String sexo) { this.sexo = sexo; }
     public String getRacaOuCor() { return racaOuCor; }
     public void setRacaOuCor(String racaOuCor) { this.racaOuCor = racaOuCor; }
+    public String getRaca() { return raca; }
+    public void setRaca(String raca) { this.raca = raca; }
+    public String getCor() { return cor; }
+    public void setCor(String cor) { this.cor = cor; }
     public boolean isCastrado() { return castrado; }
     public void setCastrado(boolean castrado) { this.castrado = castrado; }
     public String getStatus() { return status; }
